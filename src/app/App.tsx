@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Search,
   Plus,
@@ -6,14 +6,147 @@ import {
   List,
   Settings,
   X,
+  ImagePlus,
+  Trash2,
 } from "lucide-react";
+
+import { FICTION_LAB_TAGS } from "../data/fictionLabTags";
+import { invoke } from "@tauri-apps/api/core";
 
 export function App() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [scenarioName, setScenarioName] = useState("");
   const [description, setDescription] = useState("");
 
+  const [tagSearch, setTagSearch] = useState("");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+
+  const newScenarioButtonRef = useRef<HTMLButtonElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+
+  const [isCreating, setIsCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+
   const canCreate = scenarioName.trim().length > 0;
+
+  const filteredTags = FICTION_LAB_TAGS.filter((tag) =>
+    tag.toLowerCase().includes(tagSearch.trim().toLowerCase()),
+  );
+
+  function closeCreateModal() {
+    setIsCreateOpen(false);
+  }
+
+  function handleCoverChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    if (coverPreview) {
+      URL.revokeObjectURL(coverPreview);
+    }
+
+    setCoverFile(file);
+    setCoverPreview(URL.createObjectURL(file));
+  }
+
+  function removeCover() {
+    if (coverPreview) {
+      URL.revokeObjectURL(coverPreview);
+    }
+
+    setCoverFile(null);
+    setCoverPreview(null);
+
+    if (coverInputRef.current) {
+      coverInputRef.current.value = "";
+    }
+  }
+
+  function toggleTag(tag: string) {
+    const isSelected = selectedTags.includes(tag);
+
+    if (isSelected) {
+      setSelectedTags((current) =>
+        current.filter((selectedTag) => selectedTag !== tag),
+      );
+      return;
+    }
+
+    if (selectedTags.length >= 5) {
+      return;
+    }
+
+    setSelectedTags((current) => [...current, tag]);
+  }
+
+  function removeTag(tag: string) {
+    setSelectedTags((current) =>
+      current.filter((selectedTag) => selectedTag !== tag),
+    );
+  }
+
+  useEffect(() => {
+    if (!isCreateOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeCreateModal();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isCreateOpen]);
+
+  useEffect(() => {
+    if (!isCreateOpen) {
+      newScenarioButtonRef.current?.focus();
+    }
+  }, [isCreateOpen]);
+
+  async function handleCreateScenario() {
+    const trimmedName = scenarioName.trim();
+
+    if (!trimmedName || isCreating) {
+      return;
+    }
+
+    setIsCreating(true);
+    setCreateError(null);
+
+    try {
+      const createdScenario = await invoke("create_scenario", {
+        input: {
+          name: trimmedName,
+          description: description.trim() || null,
+          tags: selectedTags,
+        },
+      });
+
+      console.log("Scenario created:", createdScenario);
+
+      setScenarioName("");
+      setDescription("");
+      setSelectedTags([]);
+      setTagSearch("");
+      removeCover();
+
+      closeCreateModal();
+    } catch (error) {
+      setCreateError(
+        typeof error === "string" ? error : "Could not create the Scenario.",
+      );
+    } finally {
+      setIsCreating(false);
+    }
+  }
 
   return (
     <div className="app-shell">
@@ -31,12 +164,14 @@ export function App() {
         <section className="library-header">
           <div>
             <h1>Scenario Library</h1>
+
             <p className="page-subtitle">
               Create, organize and manage your Fiction Lab scenarios.
             </p>
           </div>
 
           <button
+            ref={newScenarioButtonRef}
             className="button button-primary"
             onClick={() => setIsCreateOpen(true)}
           >
@@ -48,6 +183,7 @@ export function App() {
         <section className="library-toolbar">
           <div className="search-field">
             <Search size={18} />
+
             <input
               type="search"
               placeholder="Search scenarios..."
@@ -113,7 +249,7 @@ export function App() {
           role="presentation"
           onMouseDown={(event) => {
             if (event.target === event.currentTarget) {
-              setIsCreateOpen(false);
+              closeCreateModal();
             }
           }}
         >
@@ -126,13 +262,16 @@ export function App() {
             <header className="modal-header">
               <div>
                 <h2 id="new-scenario-title">New Scenario</h2>
-                <p>Create the basic Scenario details. You can add more later.</p>
+
+                <p>
+                  Create the basic Scenario details. You can add more later.
+                </p>
               </div>
 
               <button
                 className="icon-button"
                 aria-label="Close dialog"
-                onClick={() => setIsCreateOpen(false)}
+                onClick={closeCreateModal}
               >
                 <X size={18} />
               </button>
@@ -166,35 +305,158 @@ export function App() {
               </label>
 
               <div className="field">
-                <span className="field-label">Cover Image</span>
-                <button className="button button-secondary" type="button">
-                  Choose Image
-                </button>
-                <span className="field-helper">Optional</span>
+                <span className="field-label">
+                  Cover Image
+                  <span className="required-label">Optional</span>
+                </span>
+
+                <input
+                  ref={coverInputRef}
+                  className="visually-hidden"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  onChange={handleCoverChange}
+                />
+
+                {!coverPreview ? (
+                  <button
+                    className="cover-picker"
+                    type="button"
+                    onClick={() => coverInputRef.current?.click()}
+                  >
+                    <ImagePlus size={22} />
+
+                    <span>
+                      <strong>Choose Image</strong>
+                      <small>PNG, JPEG or WebP</small>
+                    </span>
+                  </button>
+                ) : (
+                  <div className="cover-preview">
+                    <img
+                      src={coverPreview}
+                      alt="Selected Scenario cover preview"
+                    />
+
+                    <div className="cover-preview-details">
+                      <div className="cover-file-name" title={coverFile?.name}>
+                        {coverFile?.name}
+                      </div>
+
+                      <div className="cover-preview-actions">
+                        <button
+                          className="button button-secondary button-small"
+                          type="button"
+                          onClick={() => coverInputRef.current?.click()}
+                        >
+                          Replace
+                        </button>
+
+                        <button
+                          className="button button-ghost button-small"
+                          type="button"
+                          onClick={removeCover}
+                        >
+                          <Trash2 size={15} />
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="field">
-                <span className="field-label">Tags &amp; Genres</span>
-                <div className="field-placeholder">
-                  Tag selector will be connected next.
+                <span className="field-label">
+                  Tags &amp; Genres
+                  <span className="tag-counter">{selectedTags.length} / 5</span>
+                </span>
+
+                {selectedTags.length > 0 && (
+                  <div className="selected-tags">
+                    {selectedTags.map((tag) => (
+                      <button
+                        key={tag}
+                        type="button"
+                        className="selected-tag"
+                        onClick={() => removeTag(tag)}
+                        aria-label={`Remove ${tag}`}
+                      >
+                        {tag}
+                        <X size={14} />
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                <div className="tag-picker">
+                  <div className="tag-search">
+                    <Search size={16} />
+
+                    <input
+                      type="search"
+                      value={tagSearch}
+                      onChange={(event) => setTagSearch(event.target.value)}
+                      placeholder="Search tags..."
+                      aria-label="Search Tags and Genres"
+                    />
+                  </div>
+
+                  <div className="tag-options">
+                    {filteredTags.map((tag) => {
+                      const isSelected = selectedTags.includes(tag);
+                      const isDisabled =
+                        selectedTags.length >= 5 && !isSelected;
+
+                      return (
+                        <button
+                          key={tag}
+                          type="button"
+                          className={`tag-option ${
+                            isSelected ? "selected" : ""
+                          }`}
+                          disabled={isDisabled}
+                          onClick={() => toggleTag(tag)}
+                        >
+                          <span>{tag}</span>
+
+                          {isSelected && <span aria-hidden="true">✓</span>}
+                        </button>
+                      );
+                    })}
+
+                    {filteredTags.length === 0 && (
+                      <div className="tag-empty">
+                        No matching Tags &amp; Genres.
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <span className="field-helper">Up to 5</span>
+
+                <span className="field-helper">
+                  Choose up to 5 official Fiction Lab Tags &amp; Genres.
+                </span>
               </div>
             </div>
-
+            {createError && (
+              <div className="form-error" role="alert">
+                {createError}
+              </div>
+            )}
             <footer className="modal-footer">
               <button
                 className="button button-ghost"
-                onClick={() => setIsCreateOpen(false)}
+                onClick={closeCreateModal}
               >
                 Cancel
               </button>
 
               <button
                 className="button button-primary"
-                disabled={!canCreate}
+                disabled={!canCreate || isCreating}
+                onClick={handleCreateScenario}
               >
-                Create Scenario
+                {isCreating ? "Creating..." : "Create Scenario"}
               </button>
             </footer>
           </section>
