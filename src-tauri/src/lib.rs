@@ -21,7 +21,8 @@ pub fn run() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             commands::create_scenario,
-            commands::list_scenarios
+            commands::list_scenarios,
+            commands::get_scenario,
         ])
         .setup(|app| {
             let app_data_dir = app

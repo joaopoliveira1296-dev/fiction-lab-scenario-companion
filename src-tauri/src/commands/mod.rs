@@ -194,3 +194,52 @@ pub async fn list_scenarios(
 
     Ok(scenarios)
 }
+
+#[tauri::command]
+pub async fn get_scenario(
+    state: State<'_, Arc<AppState>>,
+    scenario_id: String,
+) -> Result<ScenarioSummary, String> {
+    let row = sqlx::query_as::<_, (String, String, String, String, String, String)>(
+        r#"
+        SELECT
+            id,
+            name,
+            description,
+            status,
+            created_at,
+            updated_at
+        FROM scenarios
+        WHERE id = ?
+          AND is_trashed = 0
+        "#,
+    )
+    .bind(&scenario_id)
+    .fetch_optional(&state.db)
+    .await
+    .map_err(|error| error.to_string())?
+    .ok_or_else(|| "Scenario not found.".to_string())?;
+
+    let tags = sqlx::query_scalar::<_, String>(
+        r#"
+        SELECT value
+        FROM scenario_tags
+        WHERE scenario_id = ?
+        ORDER BY display_order ASC
+        "#,
+    )
+    .bind(&scenario_id)
+    .fetch_all(&state.db)
+    .await
+    .map_err(|error| error.to_string())?;
+
+    Ok(ScenarioSummary {
+        id: row.0,
+        name: row.1,
+        description: row.2,
+        status: row.3,
+        tags,
+        created_at: row.4,
+        updated_at: row.5,
+    })
+}

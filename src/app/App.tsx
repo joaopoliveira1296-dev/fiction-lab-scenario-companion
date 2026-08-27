@@ -9,8 +9,13 @@ export function App() {
       <Route path="/" element={<ScenarioLibrary />} />
 
       <Route
-        path="/scenario/:scenarioId/overview"
+        path="/scenario/:scenarioId/:section"
         element={<ScenarioWorkspace />}
+      />
+
+      <Route
+        path="/scenario/:scenarioId"
+        element={<Navigate to="overview" replace />}
       />
 
       <Route path="*" element={<Navigate to="/" replace />} />
