@@ -22,6 +22,12 @@ interface ScenarioSummary {
   updatedAt: string;
 }
 
+interface ScenarioOverview {
+  loreCount: number;
+  connectionCount: number;
+  visualCanonCount: number;
+}
+
 type WorkspaceSection =
   | "overview"
   | "story"
@@ -76,6 +82,8 @@ export function ScenarioWorkspace() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
+  const [overview, setOverview] = useState<ScenarioOverview | null>(null);
+
   const activeSection: WorkspaceSection = WORKSPACE_SECTIONS.some(
     (item) => item.id === section,
   )
@@ -99,6 +107,15 @@ export function ScenarioWorkspace() {
         });
 
         setScenario(result);
+
+        const overviewResult = await invoke<ScenarioOverview>(
+          "get_scenario_overview",
+          {
+            scenarioId,
+          },
+        );
+
+        setOverview(overviewResult);
       } catch (error) {
         setLoadError(
           typeof error === "string" ? error : "Could not load the Scenario.",
@@ -221,7 +238,7 @@ export function ScenarioWorkspace() {
                 <article className="overview-card">
                   <span className="overview-card-label">Lore</span>
 
-                  <strong>0 Cards</strong>
+                  <strong>{overview?.loreCount ?? 0} Cards</strong>
 
                   <span className="overview-card-helper">
                     No Lore Cards yet.
@@ -231,7 +248,7 @@ export function ScenarioWorkspace() {
                 <article className="overview-card">
                   <span className="overview-card-label">Connections</span>
 
-                  <strong>0 Connections</strong>
+                  <strong>{overview?.connectionCount ?? 0} Connections</strong>
 
                   <span className="overview-card-helper">
                     No Connections yet.
@@ -241,7 +258,9 @@ export function ScenarioWorkspace() {
                 <article className="overview-card">
                   <span className="overview-card-label">Visuals</span>
 
-                  <strong>0 VISUAL CANON</strong>
+                  <strong>
+                    {overview?.visualCanonCount ?? 0} VISUAL CANON
+                  </strong>
 
                   <span className="overview-card-helper">
                     No approved visuals yet.

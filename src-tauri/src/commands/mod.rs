@@ -243,3 +243,62 @@ pub async fn get_scenario(
         updated_at: row.5,
     })
 }
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ScenarioOverview {
+    pub lore_count: i64,
+    pub connection_count: i64,
+    pub visual_canon_count: i64,
+}
+
+#[tauri::command]
+pub async fn get_scenario_overview(
+    state: State<'_, Arc<AppState>>,
+    scenario_id: String,
+) -> Result<ScenarioOverview, String> {
+    let lore_count = sqlx::query_scalar::<_, i64>(
+        r#"
+        SELECT COUNT(*)
+        FROM lore_cards
+        WHERE scenario_id = ?
+          AND is_trashed = 0
+        "#,
+    )
+    .bind(&scenario_id)
+    .fetch_one(&state.db)
+    .await
+    .map_err(|error| error.to_string())?;
+
+    let connection_count = sqlx::query_scalar::<_, i64>(
+        r#"
+        SELECT COUNT(*)
+        FROM connections
+        WHERE scenario_id = ?
+        "#,
+    )
+    .bind(&scenario_id)
+    .fetch_one(&state.db)
+    .await
+    .map_err(|error| error.to_string())?;
+
+    let visual_canon_count = sqlx::query_scalar::<_, i64>(
+        r#"
+        SELECT COUNT(*)
+        FROM lore_cards
+        WHERE scenario_id = ?
+          AND is_trashed = 0
+          AND visual_canon_status = 'VISUAL CANON'
+        "#,
+    )
+    .bind(&scenario_id)
+    .fetch_one(&state.db)
+    .await
+    .map_err(|error| error.to_string())?;
+
+    Ok(ScenarioOverview {
+        lore_count,
+        connection_count,
+        visual_canon_count,
+    })
+}
