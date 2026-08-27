@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Minimal desktop capability baseline. Expand only when a concrete feature requires it.",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}

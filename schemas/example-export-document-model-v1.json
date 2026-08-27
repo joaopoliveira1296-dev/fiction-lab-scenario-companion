@@ -1,0 +1,34 @@
+{
+  "modelVersion": 1,
+  "generatedAt": "2026-08-27T18:00:00Z",
+  "profile": "SCENARIO_ARCHITECT_REVIEW",
+  "format": "MARKDOWN",
+  "options": {
+    "includeMainDetails": true,
+    "includeStory": true,
+    "includeLoreCards": true,
+    "includeConnections": true,
+    "includeVisualCanonImages": true,
+    "includeVisualPrompts": true,
+    "includeCanonStatus": true,
+    "includeValidationDetails": true,
+    "includeInternalTimestamps": false
+  },
+  "scenario": {
+    "id": "scenario-1",
+    "name": "Example Scenario",
+    "description": "Example only.",
+    "coverImagePath": null,
+    "status": "IN_DEVELOPMENT",
+    "tags": []
+  },
+  "stateSummary": {
+    "loreTotal": 0,
+    "text": {"open": 0, "draft": 0, "readyForPlatformCheck": 0, "canonClosed": 0},
+    "visual": {"notStarted": 0, "inProgress": 0, "visualCanon": 0}
+  },
+  "story": {"backstory": "", "greeting": "", "customInstructions": ""},
+  "loreCards": [],
+  "connections": [],
+  "validation": []
+}

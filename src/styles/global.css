@@ -1,0 +1,20 @@
+* { box-sizing: border-box; }
+html, body, #root { min-width: 800px; min-height: 600px; margin: 0; }
+body { background: var(--color-bg); color: var(--color-text-primary); }
+button, input, textarea, select { font: inherit; }
+:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-action-primary) 65%, white); outline-offset: 2px; }
+.app-shell { min-height: 100vh; padding: var(--space-8); }
+.placeholder-surface {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--space-8);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+}
+.eyebrow { color: var(--color-text-secondary); font-size: 0.875rem; }
+h1 { margin: var(--space-2) 0 var(--space-4); font-size: 1.75rem; line-height: 1.25; }
+p { line-height: 1.5; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+}

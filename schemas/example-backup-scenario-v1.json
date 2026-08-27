@@ -1,0 +1,31 @@
+{
+  "backupFormatVersion": 1,
+  "applicationVersion": "0.1.0",
+  "createdAt": "2026-08-27T18:00:00Z",
+  "scenario": {
+    "id": "scenario-1",
+    "name": "Example Scenario",
+    "description": "Example only.",
+    "coverImagePath": null,
+    "managedFolderName": "Example Scenario",
+    "status": "IN_DEVELOPMENT",
+    "backstory": "",
+    "greeting": "",
+    "customInstructions": "",
+    "notes": "",
+    "favorite": false,
+    "isTrashed": false,
+    "trashedAt": null,
+    "createdAt": "2026-08-27T18:00:00Z",
+    "updatedAt": "2026-08-27T18:00:00Z"
+  },
+  "scenarioTags": [],
+  "loreCards": [],
+  "triggers": [],
+  "characterTraits": [],
+  "connections": [],
+  "connectionEvents": [],
+  "visualPrompts": [],
+  "cardImages": [],
+  "platformVerification": []
+}

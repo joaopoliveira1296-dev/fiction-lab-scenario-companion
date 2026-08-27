@@ -1,0 +1,31 @@
+[package]
+name = "fiction-lab-scenario-companion"
+version = "0.1.0"
+description = "Local Windows companion for Fiction Lab scenario development"
+authors = ["Fiction Lab Scenario Companion"]
+edition = "2021"
+
+[lib]
+name = "fiction_lab_scenario_companion_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sqlx = { version = "0.8", features = ["runtime-tokio", "sqlite", "migrate", "uuid", "chrono"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "fs", "sync"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+thiserror = "2"
+zip = "4"
+sha2 = "0.10"
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+strip = true

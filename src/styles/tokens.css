@@ -1,0 +1,42 @@
+:root {
+  font-family: "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  color-scheme: light dark;
+
+  --color-bg: #f4f6f5;
+  --color-surface: #fafbfa;
+  --color-surface-raised: #ffffff;
+  --color-text-primary: #1f2929;
+  --color-text-secondary: #667171;
+  --color-text-muted: #8a9494;
+  --color-border: #d9dfde;
+  --color-border-strong: #bec8c6;
+  --color-action-primary: #34777a;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  --radius-control: 8px;
+  --radius-card: 10px;
+  --radius-dialog: 14px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #171c1c;
+    --color-surface: #1d2424;
+    --color-surface-raised: #252d2d;
+    --color-text-primary: #eef2f1;
+    --color-text-secondary: #b5c0be;
+    --color-text-muted: #879492;
+    --color-border: #35403f;
+    --color-border-strong: #465351;
+  }
+}

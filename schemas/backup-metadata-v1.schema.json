@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fiction-lab-scenario-companion.local/schemas/backup-metadata-v1.schema.json",
+  "title": "Fiction Lab Scenario Companion Backup Metadata v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["backupFormatVersion","applicationVersion","createdAt","scenarioId","scenarioName","activeImageCount","archivedImageCount"],
+  "properties": {
+    "backupFormatVersion": {"const": 1},
+    "applicationVersion": {"type":"string","minLength":1},
+    "createdAt": {"type":"string","format":"date-time"},
+    "scenarioId": {"type":"string","minLength":1},
+    "scenarioName": {"type":"string","minLength":1},
+    "activeImageCount": {"type":"integer","minimum":0},
+    "archivedImageCount": {"type":"integer","minimum":0},
+    "structuredFile": {"const":"scenario.json"},
+    "checksums": {
+      "type":"object",
+      "additionalProperties":{"type":"string","pattern":"^[A-Fa-f0-9]{64}$"}
+    }
+  }
+}
