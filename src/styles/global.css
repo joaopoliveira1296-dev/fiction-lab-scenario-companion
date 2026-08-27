@@ -818,3 +818,141 @@ select:hover {
   font-size: 13px;
   line-height: 1.45;
 }
+
+/* Scenario Library content */
+
+.library-message {
+  min-height: 240px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+
+  color: #b5c0be;
+
+  border: 1px dashed #35403f;
+  border-radius: 12px;
+
+  background: #1b2222;
+}
+
+.library-message-error {
+  color: #f0c7c7;
+}
+
+.scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+.scenario-card {
+  overflow: hidden;
+
+  border: 1px solid #35403f;
+  border-radius: 12px;
+
+  background: #1d2424;
+
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease;
+}
+
+.scenario-card:hover {
+  border-color: #4b5a58;
+  background: #202828;
+}
+
+.scenario-card-cover {
+  height: 150px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-bottom: 1px solid #35403f;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(52, 119, 122, 0.22),
+      rgba(52, 119, 122, 0.06)
+    ),
+    #192020;
+}
+
+.scenario-card-cover span {
+  color: #8fc1c2;
+
+  font-size: 30px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+}
+
+.scenario-card-content {
+  padding: 18px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.scenario-card-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.scenario-card-heading h2 {
+  margin: 0;
+
+  color: #eef2f1;
+
+  font-size: 17px;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.scenario-status {
+  flex: 0 0 auto;
+
+  padding: 4px 7px;
+
+  border: 1px solid #465351;
+  border-radius: 6px;
+
+  color: #b5c0be;
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.scenario-card-content > p {
+  margin: 0;
+
+  color: #b5c0be;
+
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.scenario-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.scenario-card-tags span {
+  padding: 4px 7px;
+
+  border-radius: 6px;
+
+  background: #283130;
+  color: #aebbb9;
+
+  font-size: 12px;
+}

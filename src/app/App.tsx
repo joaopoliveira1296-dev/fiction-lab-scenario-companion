@@ -13,6 +13,16 @@ import {
 import { FICTION_LAB_TAGS } from "../data/fictionLabTags";
 import { invoke } from "@tauri-apps/api/core";
 
+interface ScenarioSummary {
+  id: string;
+  name: string;
+  description: string;
+  status: string;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 export function App() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [scenarioName, setScenarioName] = useState("");
@@ -29,6 +39,12 @@ export function App() {
 
   const [isCreating, setIsCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
+
+  const [scenarios, setScenarios] = useState<ScenarioSummary[]>([]);
+  const [isLoadingScenarios, setIsLoadingScenarios] = useState(true);
+  const [scenarioLoadError, setScenarioLoadError] = useState<string | null>(
+    null,
+  );
 
   const canCreate = scenarioName.trim().length > 0;
 
@@ -111,6 +127,27 @@ export function App() {
     }
   }, [isCreateOpen]);
 
+  useEffect(() => {
+    void loadScenarios();
+  }, []);
+
+  async function loadScenarios() {
+    setIsLoadingScenarios(true);
+    setScenarioLoadError(null);
+
+    try {
+      const result = await invoke<ScenarioSummary[]>("list_scenarios");
+
+      setScenarios(result);
+    } catch (error) {
+      setScenarioLoadError(
+        typeof error === "string" ? error : "Could not load Scenarios.",
+      );
+    } finally {
+      setIsLoadingScenarios(false);
+    }
+  }
+
   async function handleCreateScenario() {
     const trimmedName = scenarioName.trim();
 
@@ -122,7 +159,7 @@ export function App() {
     setCreateError(null);
 
     try {
-      const createdScenario = await invoke("create_scenario", {
+      const createdScenario = await invoke<ScenarioSummary>("create_scenario", {
         input: {
           name: trimmedName,
           description: description.trim() || null,
@@ -130,7 +167,7 @@ export function App() {
         },
       });
 
-      console.log("Scenario created:", createdScenario);
+      setScenarios((current) => [createdScenario, ...current]);
 
       setScenarioName("");
       setDescription("");
@@ -219,28 +256,82 @@ export function App() {
           </div>
         </section>
 
-        <section className="empty-state">
-          <div className="empty-state-card">
-            <div className="empty-state-icon">
-              <Grid2X2 size={30} />
-            </div>
-
-            <h2>No scenarios yet</h2>
-
-            <p>
-              Create your first Scenario to start building Story, Lore,
-              Connections and visual references.
-            </p>
+        {isLoadingScenarios ? (
+          <section className="library-message">Loading Scenarios...</section>
+        ) : scenarioLoadError ? (
+          <section className="library-message library-message-error">
+            <p>{scenarioLoadError}</p>
 
             <button
-              className="button button-primary"
-              onClick={() => setIsCreateOpen(true)}
+              className="button button-secondary"
+              onClick={() => void loadScenarios()}
             >
-              <Plus size={18} />
-              New Scenario
+              Retry
             </button>
-          </div>
-        </section>
+          </section>
+        ) : scenarios.length === 0 ? (
+          <section className="empty-state">
+            <div className="empty-state-card">
+              <div className="empty-state-icon">
+                <Grid2X2 size={30} />
+              </div>
+
+              <h2>No scenarios yet</h2>
+
+              <p>
+                Create your first Scenario to start building Story, Lore,
+                Connections and visual references.
+              </p>
+
+              <button
+                className="button button-primary"
+                onClick={() => setIsCreateOpen(true)}
+              >
+                <Plus size={18} />
+                New Scenario
+              </button>
+            </div>
+          </section>
+        ) : (
+          <section className="scenario-grid">
+            {scenarios.map((scenario) => (
+              <article className="scenario-card" key={scenario.id}>
+                <div className="scenario-card-cover">
+                  <span>
+                    {scenario.name
+                      .split(/\s+/)
+                      .slice(0, 2)
+                      .map((word) => word[0])
+                      .join("")
+                      .toUpperCase()}
+                  </span>
+                </div>
+
+                <div className="scenario-card-content">
+                  <div className="scenario-card-heading">
+                    <h2>{scenario.name}</h2>
+
+                    <span className="scenario-status">{scenario.status}</span>
+                  </div>
+
+                  {scenario.description && <p>{scenario.description}</p>}
+
+                  {scenario.tags.length > 0 && (
+                    <div className="scenario-card-tags">
+                      {scenario.tags.slice(0, 3).map((tag) => (
+                        <span key={tag}>{tag}</span>
+                      ))}
+
+                      {scenario.tags.length > 3 && (
+                        <span>+{scenario.tags.length - 3}</span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </article>
+            ))}
+          </section>
+        )}
       </main>
 
       {isCreateOpen && (
