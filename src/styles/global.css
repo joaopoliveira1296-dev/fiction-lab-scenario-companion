@@ -956,3 +956,19 @@ select:hover {
 
   font-size: 12px;
 }
+
+.workspace-placeholder {
+  width: min(1180px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 40px 0 64px;
+}
+
+.workspace-placeholder h1 {
+  margin: 8px 0 16px;
+  font-size: 28px;
+}
+
+.workspace-placeholder code {
+  margin-left: 8px;
+  color: #8fc1c2;
+}
