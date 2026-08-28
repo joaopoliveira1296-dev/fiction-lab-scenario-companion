@@ -275,19 +275,24 @@ export function ScenarioWorkspace() {
         },
       });
 
-      const storyLimitsResult = await invoke<ScenarioStoryLimits>(
-        "get_scenario_story_limits",
-        {
-          scenarioId,
-        },
-      );
-
       setScenario({
         ...scenario,
         fictionLabPlan,
       });
 
-      setStoryLimits(storyLimitsResult);
+      try {
+        const storyLimitsResult = await invoke<ScenarioStoryLimits>(
+          "get_scenario_story_limits",
+          {
+            scenarioId,
+          },
+        );
+
+        setStoryLimits(storyLimitsResult);
+      } catch (error) {
+        setStoryLimits(null);
+        console.error("Could not reload Story limits:", error);
+      }
     } catch (error) {
       console.error("Could not save Fiction Lab plan:", error);
     } finally {
