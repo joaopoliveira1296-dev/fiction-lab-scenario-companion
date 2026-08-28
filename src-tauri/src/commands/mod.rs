@@ -266,6 +266,33 @@ pub struct ScenarioStoryLimits {
     pub custom_instructions: i64,
 }
 
+async fn get_scenario_limit(
+    pool: &sqlx::SqlitePool,
+    scenario_id: &str,
+    key: &str,
+    missing_message: &str,
+) -> Result<i64, String> {
+    sqlx::query_scalar::<_, i64>(
+        r#"
+        SELECT platform_limits.value
+        FROM scenarios
+        JOIN platform_profiles
+          ON platform_profiles.plan = scenarios.fiction_lab_plan
+        JOIN platform_limits
+          ON platform_limits.profile_id = platform_profiles.id
+        WHERE scenarios.id = ?
+          AND scenarios.is_trashed = 0
+          AND platform_limits.key = ?
+        "#,
+    )
+    .bind(scenario_id)
+    .bind(key)
+    .fetch_optional(pool)
+    .await
+    .map_err(|error| error.to_string())?
+    .ok_or_else(|| missing_message.to_string())
+}
+
 #[tauri::command]
 pub async fn get_scenario_story(
     state: State<'_, Arc<AppState>>,
@@ -357,25 +384,13 @@ pub async fn update_scenario_backstory(
     state: State<'_, Arc<AppState>>,
     input: UpdateScenarioBackstoryInput,
 ) -> Result<(), String> {
-    let limit = sqlx::query_scalar::<_, i64>(
-        r#"
-        SELECT platform_limits.value
-        FROM scenarios
-        JOIN platform_profiles
-          ON platform_profiles.plan = scenarios.fiction_lab_plan
-        JOIN platform_limits
-          ON platform_limits.profile_id = platform_profiles.id
-        WHERE scenarios.id = ?
-          AND scenarios.is_trashed = 0
-          AND platform_limits.key = 'scenario.backstory'
-        "#,
+    let limit = get_scenario_limit(
+        &state.db,
+        &input.scenario_id,
+        "scenario.backstory",
+        "Backstory limit could not be resolved.",
     )
-    .bind(&input.scenario_id)
-    .fetch_optional(&state.db)
-    .await
-    .map_err(|error| error.to_string())?
-    .ok_or_else(|| "Backstory limit could not be resolved.".to_string())?;
-
+    .await?;
     let character_count = input.backstory.chars().count() as i64;
 
     if character_count > limit {
@@ -422,24 +437,13 @@ pub async fn update_scenario_greeting(
     state: State<'_, Arc<AppState>>,
     input: UpdateScenarioGreetingInput,
 ) -> Result<(), String> {
-    let limit = sqlx::query_scalar::<_, i64>(
-        r#"
-        SELECT platform_limits.value
-        FROM scenarios
-        JOIN platform_profiles
-          ON platform_profiles.plan = scenarios.fiction_lab_plan
-        JOIN platform_limits
-          ON platform_limits.profile_id = platform_profiles.id
-        WHERE scenarios.id = ?
-          AND scenarios.is_trashed = 0
-          AND platform_limits.key = 'scenario.greeting'
-        "#,
+    let limit = get_scenario_limit(
+        &state.db,
+        &input.scenario_id,
+        "scenario.greeting",
+        "Greeting limit could not be resolved.",
     )
-    .bind(&input.scenario_id)
-    .fetch_optional(&state.db)
-    .await
-    .map_err(|error| error.to_string())?
-    .ok_or_else(|| "Greeting limit could not be resolved.".to_string())?;
+    .await?;
 
     let character_count = input.greeting.chars().count() as i64;
 
@@ -487,24 +491,13 @@ pub async fn update_scenario_custom_instructions(
     state: State<'_, Arc<AppState>>,
     input: UpdateScenarioCustomInstructionsInput,
 ) -> Result<(), String> {
-    let limit = sqlx::query_scalar::<_, i64>(
-        r#"
-        SELECT platform_limits.value
-        FROM scenarios
-        JOIN platform_profiles
-          ON platform_profiles.plan = scenarios.fiction_lab_plan
-        JOIN platform_limits
-          ON platform_limits.profile_id = platform_profiles.id
-        WHERE scenarios.id = ?
-          AND scenarios.is_trashed = 0
-          AND platform_limits.key = 'scenario.customInstructions'
-        "#,
+    let limit = get_scenario_limit(
+        &state.db,
+        &input.scenario_id,
+        "scenario.customInstructions",
+        "Custom Instructions limit could not be resolved.",
     )
-    .bind(&input.scenario_id)
-    .fetch_optional(&state.db)
-    .await
-    .map_err(|error| error.to_string())?
-    .ok_or_else(|| "Custom Instructions limit could not be resolved.".to_string())?;
+    .await?;
 
     let character_count = input.custom_instructions.chars().count() as i64;
 
