@@ -2,12 +2,11 @@
 
 ## Current milestone
 
-Real Story Workspace connected to SQLite persistence.
+Lore Workspace implementation in progress.
 
 ## Last confirmed working state
 
 - Tauri app launches successfully.
-- SQLite database initializes and migration 001 runs.
 - SQLite is the authoritative data source.
 - Scenario Library loads persisted Scenarios.
 - New Scenario creates a real database record.
@@ -20,147 +19,46 @@ Real Story Workspace connected to SQLite persistence.
   - Visuals
   - Connections
   - Exports
-- get_scenario works.
-- get_scenario_overview works.
-- Scenario Overview displays real SQLite metrics:
-  - Lore Card count.
-  - Connection count.
-  - VISUAL CANON count.
+- Scenario Overview displays real SQLite metrics.
+
+## Overview Workspace
+
+Overview is functional and connected to SQLite.
+
+Current metrics include:
+
+- Lore Card count.
+- Connection count.
+- VISUAL CANON count.
 
 ## Story Workspace
 
-The real Story Workspace is now implemented for the three Scenario-level Fiction Lab text fields:
+Story is functional, persisted, autosaving and plan-aware.
+
+Implemented Scenario-level Fiction Lab fields:
 
 - Backstory / World Details.
 - Greeting.
 - Custom Scenario Instructions.
 
-The existing scenarios table already contained:
+Story currently includes:
 
-- backstory
-- greeting
-- custom_instructions
+- SQLite persistence;
+- autosave after a short idle delay;
+- manual Save buttons;
+- Saving / Saved / Unsaved / error states;
+- Unicode-aware character counting;
+- plan-aware Fiction Lab limits;
+- backend enforcement of active plan limits;
+- preservation of existing over-limit content when switching to a more restrictive plan.
 
-No new migration was required.
-
-## Story backend
-
-The Tauri backend now provides:
-
-- get_scenario_story
-- update_scenario_backstory
-- update_scenario_greeting
-- update_scenario_custom_instructions
-
-Story content is read from and written directly to SQLite.
-
-Each update also refreshes scenarios.updated_at.
-
-## Story frontend
-
-ScenarioWorkspace.tsx now:
-
-- loads Story data from SQLite;
-- maintains local draft state for each Story field;
-- provides editable textareas;
-- saves each field explicitly;
-- shows Saving... while a save is running;
-- shows Saved after successful persistence;
-- clears the Saved state when the user edits the field again;
-- shows Could not save when persistence fails.
-
-Story fields currently use individual Save buttons.
-
-## Persistence tests completed
-
-Backstory persistence was manually confirmed:
-
-- text saved and remained after leaving and reopening the Scenario;
-- edits made without pressing Save were not persisted;
-- clearing the field and pressing Save persisted the empty value.
-
-Greeting persistence was tested with the same workflow and passed.
-
-Custom Scenario Instructions is implemented using the same persistence pattern.
-
-## Current Workspace state
-
-- Overview — functional and connected to SQLite metrics.
-- Story — functional and persisted in SQLite.
-- Lore — placeholder.
-- Visuals — placeholder.
-- Connections — placeholder.
-- Exports — placeholder.
-
-Do not rebuild the Scenario Library, Scenario creation flow, Workspace routing, Scenario Overview or basic Story persistence unless a later change specifically requires it.
-
-## Next check
-
-Run the application and confirm all three Story fields:
-
-- display correctly;
-- can be edited;
-- can be saved;
-- remain persisted after leaving and reopening the Scenario;
-- preserve the previous persisted value when edits are abandoned without saving.
-
-## If successful
-
-Run:
-
-git add .
-git commit -m "Build persisted Story workspace"
-git push
-
-## Next development task
-
-After the Story checkpoint is committed, review the Story Workspace for the next small UX/data-integrity improvement before beginning another major Workspace section.
-
-## Story UX progress
-
-The Story Workspace now:
-
-- uses dedicated tabs for:
-  - Backstory / World Details;
-  - Greeting;
-  - Custom Scenario Instructions;
-- shows only one Story field as the primary editor at a time;
-- autosaves each Story field after a short idle delay;
-- keeps manual Save buttons available;
-- shows Unsaved while local edits differ from the persisted value;
-- shows Saved briefly after successful persistence;
-- disables Save when no changes exist;
-- displays live character counts for all three Story fields;
-- persists Story content directly to SQLite.
-
----
-
-## Fiction Lab Target Plan — implemented
-
-PRD v3.1 introduces a per-Scenario Fiction Lab Target Plan.
-
-Supported values:
+Supported Fiction Lab Target Plans:
 
 - Free
 - Plus
 - Ultra
 
-The selected plan is now persisted per Scenario and determines the Fiction Lab Story limits used by the application.
-
-Implemented behaviour:
-
-- existing Scenarios default conservatively to Free through migration;
-- the selected plan persists in SQLite;
-- changing plan recalculates Story limits immediately;
-- changing plan never truncates, rewrites or deletes existing Scenario content;
-- switching from a less restrictive plan to a more restrictive plan may leave existing content over-limit;
-- over-limit content remains visible and preserved;
-- future saves above the currently selected plan limit are rejected by the backend;
-- reducing content back within the active limit allows persistence again.
-
-## Plan-aware Story limits — implemented and tested
-
-Verified Story limits currently used:
+Verified Story limits:
 
 ### Free
 
@@ -180,36 +78,174 @@ Verified Story limits currently used:
 - Greeting: 4000 characters
 - Custom Scenario Instructions: 6000 characters
 
-Implementation now includes:
+## Lore Workspace
 
-- centralized Fiction Lab plan profiles;
-- SQLite platform profiles and limits;
-- plan-aware Story character counters;
-- Unicode character counting aligned between frontend and backend;
-- visual over-limit state;
-- backend enforcement before SQLite updates;
-- specific backend validation messages displayed in the Story UI.
+Lore is no longer a placeholder.
 
-Manual testing confirmed:
+### Lore list
 
-- Free rejects Story saves above its limits;
-- Plus accepts Story content above Free limits when still within Plus limits;
-- switching Plus → Free preserves existing over-limit content;
-- no crash or data loss occurs when switching to a more restrictive plan;
-- over-limit content remains visible and clearly marked;
-- the last valid persisted value is preserved when a new save is rejected.
+Implemented:
+
+- Lore Cards load from SQLite;
+- trashed cards are excluded;
+- cards are ordered by display_order;
+- empty state;
+- styled Lore Card list;
+- visible metadata:
+  - Type
+  - Title
+  - Description
+  - Internal Category
+  - Weight
+  - Pinned
+  - Text Canon Status
+  - Visual Canon Status
+
+### Lore Card creation
+
+Implemented and manually tested:
+
+- New Lore Card form;
+- Type selection:
+  - Character
+  - Location
+  - Premise
+  - Faction
+  - Item
+  - Race
+  - Rule
+- Internal Category selection:
+  - World Premise
+  - Conflict Matrix
+  - Routine / Schedule
+  - Wardrobe
+  - Relationship
+  - Arc
+  - Visual Notes
+  - Professional Procedures
+  - Other
+- Title;
+- Weight;
+- title-required validation;
+- SQLite persistence;
+- automatic display_order assignment.
+
+### Weight control
+
+Weight uses a horizontal five-position selector rather than a generic dropdown.
+
+Supported values:
+
+- MINOR
+- SUPPLEMENTARY
+- STANDARD
+- IMPORTANT
+- CRITICAL
+
+STANDARD is the default for new Lore Cards.
+
+Weight is editable both during creation and in the Lore Card editor.
+
+Persistence has been manually confirmed.
+
+### Lore Card detail editor
+
+A Lore Card can be selected from the list to open its detail/editor panel.
+
+Currently editable and persisted:
+
+- Title
+- Type
+- Internal Category
+- Weight
+- Description
+- Content
+- Pinned
+- Text Canon Status
+- Visual Canon Status
+
+Text Canon Status values:
+
+- OPEN
+- DRAFT
+- READY_FOR_PLATFORM_CHECK
+- CANON_CLOSED
+
+Visual Canon Status values:
+
+- NOT_STARTED
+- IN_PROGRESS
+- VISUAL_CANON
+
+The editor updates the Lore list immediately after successful persistence.
+
+Update failures restore the previous local value where appropriate and display an editor error.
+
+### Lore fields not implemented yet
+
+The existing SQLite model contains additional Lore Card functionality that is not yet exposed in the editor, including:
+
+- Triggers;
+- linked pieces / Connections representation;
+- Character Traits;
+- Notes;
+- revision note;
+- source reference note;
+- verified Fiction Lab count;
+- creation prompt;
+- refinement prompts;
+- managed active/final image;
+- archived prior images;
+- remaining lifecycle / deletion / ordering behaviour.
+
+Lore-specific Fiction Lab limits and combined Lore length handling are also still pending.
 
 ## Current Workspace state
 
 - Overview — functional and connected to SQLite metrics.
 - Story — functional, persisted, autosaving and plan-aware.
-- Lore — placeholder.
+- Lore — active implementation; creation and core text/metadata editor functional and persisted.
 - Visuals — placeholder.
 - Connections — placeholder.
 - Exports — placeholder.
 
-Do not rebuild the Scenario Library, Scenario creation flow, Workspace routing, Scenario Overview, basic Story persistence or Fiction Lab Target Plan support unless a later change specifically requires it.
+## Latest validation
+
+Before the current checkpoint:
+
+- `npm run build` passed.
+- `cargo check --manifest-path .\src-tauri\Cargo.toml` passed.
+- `git diff --check` passed.
+- Manual persistence tests passed for the currently implemented Lore fields.
+
+Latest confirmed remote feature commit:
+
+`7b25032` — `Expand Lore Card content editor`
+
+## Do not rebuild
+
+Do not rebuild the following unless a later change specifically requires it:
+
+- Scenario Library;
+- Scenario creation flow;
+- Workspace routing;
+- Scenario Overview;
+- Story persistence;
+- Story autosave;
+- Fiction Lab Target Plan support;
+- plan-aware Story limits;
+- Lore Card loading;
+- Lore Card creation;
+- current Lore Card core editor.
 
 ## Next development task
 
-Review the Story Workspace for any remaining small UX/data-integrity cleanup, then begin the next planned major Workspace section from the PRD.
+Resume Lore Workspace development.
+
+Recommended next sequence:
+
+1. review current Lore editor state after the pause;
+2. decide the next PRD-backed Lore Card fields/lifecycle feature;
+3. continue in small isolated checkpoints;
+4. add Lore-specific platform-limit handling when the relevant fields are implemented;
+5. only move to another major Workspace after the planned Lore milestone is sufficiently complete.
