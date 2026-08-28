@@ -471,7 +471,7 @@ export function ScenarioWorkspace() {
                       ? "story-field-tab story-field-tab-active"
                       : "story-field-tab"
                   }
-                  aria-pressed={activeStoryField === "customInstructions"}
+                  aria-pressed={activeStoryField === "greeting"}
                   onClick={() => setActiveStoryField("greeting")}
                 >
                   Greeting
@@ -484,7 +484,7 @@ export function ScenarioWorkspace() {
                       ? "story-field-tab story-field-tab-active"
                       : "story-field-tab"
                   }
-                  aria-pressed={activeStoryField === "greeting"}
+                  aria-pressed={activeStoryField === "customInstructions"}
                   onClick={() => setActiveStoryField("customInstructions")}
                 >
                   Custom Scenario Instructions
