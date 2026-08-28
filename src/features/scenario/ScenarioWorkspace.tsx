@@ -126,6 +126,12 @@ export function ScenarioWorkspace() {
 
   const [overview, setOverview] = useState<ScenarioOverview | null>(null);
   const [loreCards, setLoreCards] = useState<LoreCardSummary[]>([]);
+  const [isCreatingLoreCard, setIsCreatingLoreCard] = useState(false);
+  const [newLoreType, setNewLoreType] = useState("CHARACTER");
+  const [newLoreInternalCategory, setNewLoreInternalCategory] =
+    useState("Other");
+  const [newLoreTitle, setNewLoreTitle] = useState("");
+  const [loreCreateError, setLoreCreateError] = useState<string | null>(null);
   const [activeStoryField, setActiveStoryField] = useState<
     "backstory" | "greeting" | "customInstructions"
   >("backstory");
@@ -238,6 +244,36 @@ export function ScenarioWorkspace() {
 
     void loadScenario();
   }, [scenarioId]);
+
+  async function createLoreCard() {
+    if (!scenarioId) {
+      return;
+    }
+
+    setLoreCreateError(null);
+
+    try {
+      const createdCard = await invoke<LoreCardSummary>("create_lore_card", {
+        input: {
+          scenarioId,
+          loreType: newLoreType,
+          internalCategory: newLoreInternalCategory,
+          title: newLoreTitle,
+        },
+      });
+
+      setLoreCards((currentCards) => [...currentCards, createdCard]);
+
+      setNewLoreType("CHARACTER");
+      setNewLoreInternalCategory("Other");
+      setNewLoreTitle("");
+      setIsCreatingLoreCard(false);
+    } catch (error) {
+      setLoreCreateError(
+        typeof error === "string" ? error : "Could not create the Lore Card.",
+      );
+    }
+  }
 
   useEffect(() => {
     if (backstoryDraft === savedBackstory) {
@@ -828,8 +864,81 @@ export function ScenarioWorkspace() {
                   <h2>Lore</h2>
                   <p>Manage the Lore Cards stored for this Scenario.</p>
                 </div>
-              </div>
 
+                <button
+                  type="button"
+                  onClick={() => setIsCreatingLoreCard(true)}
+                >
+                  New Lore Card
+                </button>
+              </div>
+              {isCreatingLoreCard && (
+                <div className="lore-create-form">
+                  <label>
+                    Type
+                    <select
+                      value={newLoreType}
+                      onChange={(event) => setNewLoreType(event.target.value)}
+                    >
+                      <option value="CHARACTER">Character</option>
+                      <option value="LOCATION">Location</option>
+                      <option value="PREMISE">Premise</option>
+                      <option value="FACTION">Faction</option>
+                      <option value="ITEM">Item</option>
+                      <option value="RACE">Race</option>
+                      <option value="RULE">Rule</option>
+                    </select>
+                  </label>
+
+                  <label>
+                    Internal Category
+                    <select
+                      value={newLoreInternalCategory}
+                      onChange={(event) =>
+                        setNewLoreInternalCategory(event.target.value)
+                      }
+                    >
+                      <option value="World Premise">World Premise</option>
+                      <option value="Conflict Matrix">Conflict Matrix</option>
+                      <option value="Routine / Schedule">
+                        Routine / Schedule
+                      </option>
+                      <option value="Wardrobe">Wardrobe</option>
+                      <option value="Relationship">Relationship</option>
+                      <option value="Arc">Arc</option>
+                      <option value="Visual Notes">Visual Notes</option>
+                      <option value="Professional Procedures">
+                        Professional Procedures
+                      </option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </label>
+
+                  <label>
+                    Title
+                    <input
+                      type="text"
+                      value={newLoreTitle}
+                      onChange={(event) => setNewLoreTitle(event.target.value)}
+                    />
+                  </label>
+                  {loreCreateError && (
+                    <div className="lore-create-error">{loreCreateError}</div>
+                  )}
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => setIsCreatingLoreCard(false)}
+                    >
+                      Cancel
+                    </button>
+
+                    <button type="button" onClick={() => void createLoreCard()}>
+                      Create
+                    </button>
+                  </div>
+                </div>
+              )}
               {loreCards.length === 0 ? (
                 <div className="workspace-empty-state">
                   <strong>No Lore Cards yet.</strong>

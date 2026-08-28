@@ -281,6 +281,15 @@ pub struct LoreCardSummary {
     pub display_order: i64,
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateLoreCardInput {
+    pub scenario_id: String,
+    pub lore_type: String,
+    pub internal_category: String,
+    pub title: String,
+}
+
 async fn get_scenario_limit(
     pool: &sqlx::SqlitePool,
     scenario_id: &str,
@@ -395,6 +404,73 @@ pub async fn list_lore_cards(
             display_order: row.9,
         })
         .collect())
+}
+
+#[tauri::command]
+pub async fn create_lore_card(
+    state: State<'_, Arc<AppState>>,
+    input: CreateLoreCardInput,
+) -> Result<LoreCardSummary, String> {
+    let title = input.title.trim().to_string();
+
+    if title.is_empty() {
+        return Err("Lore Card Title is required.".to_string());
+    }
+
+    let id = Uuid::new_v4().to_string();
+    let now = Utc::now().to_rfc3339();
+
+    let display_order = sqlx::query_scalar::<_, i64>(
+        r#"
+        SELECT COALESCE(MAX(display_order) + 1, 0)
+        FROM lore_cards
+        WHERE scenario_id = ?
+        "#,
+    )
+    .bind(&input.scenario_id)
+    .fetch_one(&state.db)
+    .await
+    .map_err(|error| error.to_string())?;
+
+    sqlx::query(
+        r#"
+        INSERT INTO lore_cards (
+            id,
+            scenario_id,
+            type,
+            internal_category,
+            title,
+            display_order,
+            created_at,
+            updated_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        "#,
+    )
+    .bind(&id)
+    .bind(&input.scenario_id)
+    .bind(&input.lore_type)
+    .bind(&input.internal_category)
+    .bind(&title)
+    .bind(display_order)
+    .bind(&now)
+    .bind(&now)
+    .execute(&state.db)
+    .await
+    .map_err(|error| error.to_string())?;
+
+    Ok(LoreCardSummary {
+        id,
+        lore_type: input.lore_type,
+        internal_category: input.internal_category,
+        title,
+        description: String::new(),
+        weight: "STANDARD".to_string(),
+        pinned: false,
+        text_canon_status: "DRAFT".to_string(),
+        visual_canon_status: "NOT_STARTED".to_string(),
+        display_order,
+    })
 }
 
 #[tauri::command]
