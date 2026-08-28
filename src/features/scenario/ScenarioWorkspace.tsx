@@ -596,7 +596,14 @@ export function ScenarioWorkspace() {
                     }}
                     placeholder="No Backstory yet."
                   />
-                  <div className="story-character-count">
+                  <div
+                    className={
+                      backstoryLimit !== null &&
+                      backstoryDraft.length > backstoryLimit
+                        ? "story-character-count story-character-count-over-limit"
+                        : "story-character-count"
+                    }
+                  >
                     {backstoryLimit === null
                       ? `${backstoryDraft.length} characters`
                       : `${backstoryDraft.length} / ${backstoryLimit} characters`}
@@ -647,7 +654,14 @@ export function ScenarioWorkspace() {
                     }}
                     placeholder="No Greeting yet."
                   />
-                  <div className="story-character-count">
+                  <div
+                    className={
+                      greetingLimit !== null &&
+                      greetingDraft.length > greetingLimit
+                        ? "story-character-count story-character-count-over-limit"
+                        : "story-character-count"
+                    }
+                  >
                     {greetingLimit === null
                       ? `${greetingDraft.length} characters`
                       : `${greetingDraft.length} / ${greetingLimit} characters`}
@@ -701,7 +715,14 @@ export function ScenarioWorkspace() {
                     }}
                     placeholder="No Custom Scenario Instructions yet."
                   />
-                  <div className="story-character-count">
+                  <div
+                    className={
+                      customInstructionsLimit !== null &&
+                      customInstructionsDraft.length > customInstructionsLimit
+                        ? "story-character-count story-character-count-over-limit"
+                        : "story-character-count"
+                    }
+                  >
                     {customInstructionsLimit === null
                       ? `${customInstructionsDraft.length} characters`
                       : `${customInstructionsDraft.length} / ${customInstructionsLimit} characters`}

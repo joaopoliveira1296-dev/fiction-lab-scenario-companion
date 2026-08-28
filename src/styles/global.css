@@ -1386,6 +1386,11 @@ select:hover {
   text-align: right;
 }
 
+.story-character-count-over-limit {
+  color: #e6a6a6;
+  font-weight: 600;
+}
+
 .story-textarea::placeholder {
   color: #879492;
 }

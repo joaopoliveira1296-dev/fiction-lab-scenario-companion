@@ -299,6 +299,33 @@ pub async fn update_scenario_backstory(
     state: State<'_, Arc<AppState>>,
     input: UpdateScenarioBackstoryInput,
 ) -> Result<(), String> {
+    let limit = sqlx::query_scalar::<_, i64>(
+        r#"
+        SELECT platform_limits.value
+        FROM scenarios
+        JOIN platform_profiles
+          ON platform_profiles.plan = scenarios.fiction_lab_plan
+        JOIN platform_limits
+          ON platform_limits.profile_id = platform_profiles.id
+        WHERE scenarios.id = ?
+          AND scenarios.is_trashed = 0
+          AND platform_limits.key = 'scenario.backstory'
+        "#,
+    )
+    .bind(&input.scenario_id)
+    .fetch_optional(&state.db)
+    .await
+    .map_err(|error| error.to_string())?
+    .ok_or_else(|| "Backstory limit could not be resolved.".to_string())?;
+
+    let character_count = input.backstory.chars().count() as i64;
+
+    if character_count > limit {
+        return Err(format!(
+            "Backstory exceeds the Fiction Lab limit of {limit} characters."
+        ));
+    }
+
     let now = Utc::now().to_rfc3339();
 
     let result = sqlx::query(
@@ -337,6 +364,33 @@ pub async fn update_scenario_greeting(
     state: State<'_, Arc<AppState>>,
     input: UpdateScenarioGreetingInput,
 ) -> Result<(), String> {
+    let limit = sqlx::query_scalar::<_, i64>(
+        r#"
+        SELECT platform_limits.value
+        FROM scenarios
+        JOIN platform_profiles
+          ON platform_profiles.plan = scenarios.fiction_lab_plan
+        JOIN platform_limits
+          ON platform_limits.profile_id = platform_profiles.id
+        WHERE scenarios.id = ?
+          AND scenarios.is_trashed = 0
+          AND platform_limits.key = 'scenario.greeting'
+        "#,
+    )
+    .bind(&input.scenario_id)
+    .fetch_optional(&state.db)
+    .await
+    .map_err(|error| error.to_string())?
+    .ok_or_else(|| "Greeting limit could not be resolved.".to_string())?;
+
+    let character_count = input.greeting.chars().count() as i64;
+
+    if character_count > limit {
+        return Err(format!(
+            "Greeting exceeds the Fiction Lab limit of {limit} characters."
+        ));
+    }
+
     let now = Utc::now().to_rfc3339();
 
     let result = sqlx::query(
@@ -375,6 +429,33 @@ pub async fn update_scenario_custom_instructions(
     state: State<'_, Arc<AppState>>,
     input: UpdateScenarioCustomInstructionsInput,
 ) -> Result<(), String> {
+    let limit = sqlx::query_scalar::<_, i64>(
+        r#"
+        SELECT platform_limits.value
+        FROM scenarios
+        JOIN platform_profiles
+          ON platform_profiles.plan = scenarios.fiction_lab_plan
+        JOIN platform_limits
+          ON platform_limits.profile_id = platform_profiles.id
+        WHERE scenarios.id = ?
+          AND scenarios.is_trashed = 0
+          AND platform_limits.key = 'scenario.customInstructions'
+        "#,
+    )
+    .bind(&input.scenario_id)
+    .fetch_optional(&state.db)
+    .await
+    .map_err(|error| error.to_string())?
+    .ok_or_else(|| "Custom Instructions limit could not be resolved.".to_string())?;
+
+    let character_count = input.custom_instructions.chars().count() as i64;
+
+    if character_count > limit {
+        return Err(format!(
+            "Custom Instructions exceeds the Fiction Lab limit of {limit} characters."
+        ));
+    }
+
     let now = Utc::now().to_rfc3339();
 
     let result = sqlx::query(
