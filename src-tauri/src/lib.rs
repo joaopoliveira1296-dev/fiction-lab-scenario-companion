@@ -28,6 +28,7 @@ pub fn run() {
             commands::update_scenario_backstory,
             commands::update_scenario_greeting,
             commands::update_scenario_custom_instructions,
+            commands::update_scenario_fiction_lab_plan,
         ])
         .setup(|app| {
             let app_data_dir = app

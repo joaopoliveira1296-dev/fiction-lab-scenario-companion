@@ -17,6 +17,7 @@ interface ScenarioSummary {
   name: string;
   description: string;
   status: string;
+  fictionLabPlan: string;
   tags: string[];
   createdAt: string;
   updatedAt: string;
@@ -87,6 +88,7 @@ export function ScenarioWorkspace() {
   const [scenario, setScenario] = useState<ScenarioSummary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [isSavingFictionLabPlan, setIsSavingFictionLabPlan] = useState(false);
 
   const [overview, setOverview] = useState<ScenarioOverview | null>(null);
   const [activeStoryField, setActiveStoryField] = useState<
@@ -211,6 +213,32 @@ export function ScenarioWorkspace() {
       window.clearTimeout(timeoutId);
     };
   }, [customInstructionsDraft, savedCustomInstructions]);
+
+  async function saveFictionLabPlan(fictionLabPlan: string) {
+    if (!scenarioId || !scenario) {
+      return;
+    }
+
+    setIsSavingFictionLabPlan(true);
+
+    try {
+      await invoke("update_scenario_fiction_lab_plan", {
+        input: {
+          scenarioId,
+          fictionLabPlan,
+        },
+      });
+
+      setScenario({
+        ...scenario,
+        fictionLabPlan,
+      });
+    } catch (error) {
+      console.error("Could not save Fiction Lab plan:", error);
+    } finally {
+      setIsSavingFictionLabPlan(false);
+    }
+  }
 
   async function saveBackstory() {
     if (!scenarioId) {
@@ -394,6 +422,21 @@ export function ScenarioWorkspace() {
                   </div>
 
                   <p>{scenario.description || "No description yet."}</p>
+
+                  <label>
+                    Fiction Lab Plan:{" "}
+                    <select
+                      value={scenario.fictionLabPlan}
+                      onChange={(event) =>
+                        void saveFictionLabPlan(event.target.value)
+                      }
+                      disabled={isSavingFictionLabPlan}
+                    >
+                      <option value="FREE">Free</option>
+                      <option value="PLUS">Plus</option>
+                      <option value="ULTRA">Ultra</option>
+                    </select>
+                  </label>
 
                   {scenario.tags.length > 0 && (
                     <div className="scenario-card-tags">

@@ -401,6 +401,48 @@ pub async fn update_scenario_custom_instructions(
     Ok(())
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateScenarioFictionLabPlanInput {
+    pub scenario_id: String,
+    pub fiction_lab_plan: String,
+}
+
+#[tauri::command]
+pub async fn update_scenario_fiction_lab_plan(
+    state: State<'_, Arc<AppState>>,
+    input: UpdateScenarioFictionLabPlanInput,
+) -> Result<(), String> {
+    if !matches!(input.fiction_lab_plan.as_str(), "FREE" | "PLUS" | "ULTRA") {
+        return Err("Invalid Fiction Lab plan.".to_string());
+    }
+
+    let now = Utc::now().to_rfc3339();
+
+    let result = sqlx::query(
+        r#"
+        UPDATE scenarios
+        SET
+            fiction_lab_plan = ?,
+            updated_at = ?
+        WHERE id = ?
+          AND is_trashed = 0
+        "#,
+    )
+    .bind(&input.fiction_lab_plan)
+    .bind(&now)
+    .bind(&input.scenario_id)
+    .execute(&state.db)
+    .await
+    .map_err(|error| error.to_string())?;
+
+    if result.rows_affected() == 0 {
+        return Err("Scenario not found.".to_string());
+    }
+
+    Ok(())
+}
+
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ScenarioOverview {
