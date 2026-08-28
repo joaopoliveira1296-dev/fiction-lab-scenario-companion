@@ -39,6 +39,12 @@ interface ScenarioStory {
   customInstructions: string;
 }
 
+interface ScenarioStoryLimits {
+  backstory: number;
+  greeting: number;
+  customInstructions: number;
+}
+
 type WorkspaceSection =
   | "overview"
   | "story"
@@ -94,6 +100,11 @@ export function ScenarioWorkspace() {
   const { scenarioId, section } = useParams();
 
   const [scenario, setScenario] = useState<ScenarioSummary | null>(null);
+
+  const [storyLimits, setStoryLimits] = useState<ScenarioStoryLimits | null>(
+    null,
+  );
+
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isSavingFictionLabPlan, setIsSavingFictionLabPlan] = useState(false);
@@ -141,14 +152,9 @@ export function ScenarioWorkspace() {
     ? (section as WorkspaceSection)
     : "overview";
 
-  const activeFictionLabProfile = scenario
-    ? FICTION_LAB_PLAN_PROFILES[scenario.fictionLabPlan]
-    : null;
-
-  const backstoryLimit = activeFictionLabProfile?.story.backstory ?? null;
-  const greetingLimit = activeFictionLabProfile?.story.greeting ?? null;
-  const customInstructionsLimit =
-    activeFictionLabProfile?.story.customInstructions ?? null;
+  const backstoryLimit = storyLimits?.backstory ?? null;
+  const greetingLimit = storyLimits?.greeting ?? null;
+  const customInstructionsLimit = storyLimits?.customInstructions ?? null;
 
   const backstoryCharacterCount = countCharacters(backstoryDraft);
   const greetingCharacterCount = countCharacters(greetingDraft);
@@ -184,12 +190,29 @@ export function ScenarioWorkspace() {
           scenarioId,
         });
 
+        const storyLimitsResult = await invoke<ScenarioStoryLimits>(
+          "get_scenario_story_limits",
+          {
+            scenarioId,
+          },
+        );
+
+        const limits = await invoke<ScenarioStoryLimits>(
+          "get_scenario_story_limits",
+          {
+            scenarioId,
+          },
+        );
+
         setBackstoryDraft(storyResult.backstory);
         setSavedBackstory(storyResult.backstory);
         setGreetingDraft(storyResult.greeting);
         setSavedGreeting(storyResult.greeting);
         setCustomInstructionsDraft(storyResult.customInstructions);
         setSavedCustomInstructions(storyResult.customInstructions);
+
+        setStoryLimits(storyLimitsResult);
+        setOverview(overviewResult);
 
         setOverview(overviewResult);
       } catch (error) {
@@ -261,10 +284,19 @@ export function ScenarioWorkspace() {
         },
       });
 
+      const storyLimitsResult = await invoke<ScenarioStoryLimits>(
+        "get_scenario_story_limits",
+        {
+          scenarioId,
+        },
+      );
+
       setScenario({
         ...scenario,
         fictionLabPlan,
       });
+
+      setStoryLimits(storyLimitsResult);
     } catch (error) {
       console.error("Could not save Fiction Lab plan:", error);
     } finally {

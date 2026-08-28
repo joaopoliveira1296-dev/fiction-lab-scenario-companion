@@ -258,6 +258,14 @@ pub struct ScenarioStory {
     pub custom_instructions: String,
 }
 
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ScenarioStoryLimits {
+    pub backstory: i64,
+    pub greeting: i64,
+    pub custom_instructions: i64,
+}
+
 #[tauri::command]
 pub async fn get_scenario_story(
     state: State<'_, Arc<AppState>>,
@@ -284,6 +292,56 @@ pub async fn get_scenario_story(
         backstory: row.0,
         greeting: row.1,
         custom_instructions: row.2,
+    })
+}
+
+#[tauri::command]
+pub async fn get_scenario_story_limits(
+    state: State<'_, Arc<AppState>>,
+    scenario_id: String,
+) -> Result<ScenarioStoryLimits, String> {
+    let rows = sqlx::query_as::<_, (String, i64)>(
+        r#"
+        SELECT
+            platform_limits.key,
+            platform_limits.value
+        FROM scenarios
+        JOIN platform_profiles
+          ON platform_profiles.plan = scenarios.fiction_lab_plan
+        JOIN platform_limits
+          ON platform_limits.profile_id = platform_profiles.id
+        WHERE scenarios.id = ?
+          AND scenarios.is_trashed = 0
+          AND platform_limits.key IN (
+              'scenario.backstory',
+              'scenario.greeting',
+              'scenario.customInstructions'
+          )
+        "#,
+    )
+    .bind(&scenario_id)
+    .fetch_all(&state.db)
+    .await
+    .map_err(|error| error.to_string())?;
+
+    let mut backstory = None;
+    let mut greeting = None;
+    let mut custom_instructions = None;
+
+    for (key, value) in rows {
+        match key.as_str() {
+            "scenario.backstory" => backstory = Some(value),
+            "scenario.greeting" => greeting = Some(value),
+            "scenario.customInstructions" => custom_instructions = Some(value),
+            _ => {}
+        }
+    }
+
+    Ok(ScenarioStoryLimits {
+        backstory: backstory.ok_or_else(|| "Backstory limit could not be resolved.".to_string())?,
+        greeting: greeting.ok_or_else(|| "Greeting limit could not be resolved.".to_string())?,
+        custom_instructions: custom_instructions
+            .ok_or_else(|| "Custom Instructions limit could not be resolved.".to_string())?,
     })
 }
 
