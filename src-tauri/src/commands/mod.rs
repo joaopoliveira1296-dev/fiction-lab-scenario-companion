@@ -151,14 +151,14 @@ pub async fn list_scenarios(
 ) -> Result<Vec<ScenarioSummary>, String> {
     let rows = sqlx::query_as::<_, (String, String, String, String, String, String, String)>(
         r#"
-       SELECT
-    id,
-    name,
-    description,
-    status,
-    fiction_lab_plan,
-    created_at,
-    updated_at
+        SELECT
+            id,
+            name,
+            description,
+            status,
+            fiction_lab_plan,
+            created_at,
+            updated_at
         FROM scenarios
         WHERE is_trashed = 0
         ORDER BY updated_at DESC
@@ -207,13 +207,13 @@ pub async fn get_scenario(
     let row = sqlx::query_as::<_, (String, String, String, String, String, String, String)>(
         r#"
         SELECT
-    id,
-    name,
-    description,
-    status,
-    fiction_lab_plan,
-    created_at,
-    updated_at
+            id,
+            name,
+            description,
+            status,
+            fiction_lab_plan,
+            created_at,
+            updated_at
         FROM scenarios
         WHERE id = ?
           AND is_trashed = 0
