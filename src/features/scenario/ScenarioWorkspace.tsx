@@ -45,6 +45,19 @@ interface ScenarioStoryLimits {
   customInstructions: number;
 }
 
+interface LoreCardSummary {
+  id: string;
+  loreType: string;
+  internalCategory: string;
+  title: string;
+  description: string;
+  weight: string;
+  pinned: boolean;
+  textCanonStatus: string;
+  visualCanonStatus: string;
+  displayOrder: number;
+}
+
 type SaveStatus = "idle" | "saved" | "error";
 
 type WorkspaceSection =
@@ -112,6 +125,7 @@ export function ScenarioWorkspace() {
   const [isSavingFictionLabPlan, setIsSavingFictionLabPlan] = useState(false);
 
   const [overview, setOverview] = useState<ScenarioOverview | null>(null);
+  const [loreCards, setLoreCards] = useState<LoreCardSummary[]>([]);
   const [activeStoryField, setActiveStoryField] = useState<
     "backstory" | "greeting" | "customInstructions"
   >("backstory");
@@ -196,6 +210,13 @@ export function ScenarioWorkspace() {
           },
         );
 
+        const loreCardsResult = await invoke<LoreCardSummary[]>(
+          "list_lore_cards",
+          {
+            scenarioId,
+          },
+        );
+
         setBackstoryDraft(storyResult.backstory);
         setSavedBackstory(storyResult.backstory);
         setGreetingDraft(storyResult.greeting);
@@ -204,6 +225,7 @@ export function ScenarioWorkspace() {
         setSavedCustomInstructions(storyResult.customInstructions);
 
         setStoryLimits(storyLimitsResult);
+        setLoreCards(loreCardsResult);
         setOverview(overviewResult);
       } catch (error) {
         setLoadError(
@@ -800,10 +822,47 @@ export function ScenarioWorkspace() {
             </section>
           )}
           {activeSection === "lore" && (
-            <WorkspacePlaceholder
-              title="Lore"
-              text="Lore Card creation, search, filters and lifecycle will live here."
-            />
+            <section className="workspace-section">
+              <div className="workspace-section-header">
+                <div>
+                  <h2>Lore</h2>
+                  <p>Manage the Lore Cards stored for this Scenario.</p>
+                </div>
+              </div>
+
+              {loreCards.length === 0 ? (
+                <div className="workspace-empty-state">
+                  <strong>No Lore Cards yet.</strong>
+                  <span>
+                    Lore Cards created for this Scenario will appear here.
+                  </span>
+                </div>
+              ) : (
+                <div className="lore-list">
+                  {loreCards.map((card) => (
+                    <article key={card.id} className="lore-list-card">
+                      <div className="lore-list-card-header">
+                        <div>
+                          <span>{card.loreType}</span>
+                          <h3>{card.title}</h3>
+                        </div>
+
+                        {card.pinned && <span>Pinned</span>}
+                      </div>
+
+                      {card.description && <p>{card.description}</p>}
+
+                      <div className="lore-list-card-meta">
+                        <span>{card.internalCategory}</span>
+                        <span>{card.weight}</span>
+                        <span>{card.textCanonStatus}</span>
+                        <span>{card.visualCanonStatus}</span>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </section>
           )}
 
           {activeSection === "visuals" && (

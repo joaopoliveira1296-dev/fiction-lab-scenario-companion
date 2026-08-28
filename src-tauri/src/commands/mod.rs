@@ -266,6 +266,21 @@ pub struct ScenarioStoryLimits {
     pub custom_instructions: i64,
 }
 
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LoreCardSummary {
+    pub id: String,
+    pub lore_type: String,
+    pub internal_category: String,
+    pub title: String,
+    pub description: String,
+    pub weight: String,
+    pub pinned: bool,
+    pub text_canon_status: String,
+    pub visual_canon_status: String,
+    pub display_order: i64,
+}
+
 async fn get_scenario_limit(
     pool: &sqlx::SqlitePool,
     scenario_id: &str,
@@ -320,6 +335,66 @@ pub async fn get_scenario_story(
         greeting: row.1,
         custom_instructions: row.2,
     })
+}
+
+#[tauri::command]
+pub async fn list_lore_cards(
+    state: State<'_, Arc<AppState>>,
+    scenario_id: String,
+) -> Result<Vec<LoreCardSummary>, String> {
+    let rows = sqlx::query_as::<
+        _,
+        (
+            String,
+            String,
+            String,
+            String,
+            String,
+            String,
+            i64,
+            String,
+            String,
+            i64,
+        ),
+    >(
+        r#"
+        SELECT
+            id,
+            type,
+            internal_category,
+            title,
+            description,
+            weight,
+            pinned,
+            text_canon_status,
+            visual_canon_status,
+            display_order
+        FROM lore_cards
+        WHERE scenario_id = ?
+          AND is_trashed = 0
+        ORDER BY display_order ASC
+        "#,
+    )
+    .bind(scenario_id)
+    .fetch_all(&state.db)
+    .await
+    .map_err(|error| error.to_string())?;
+
+    Ok(rows
+        .into_iter()
+        .map(|row| LoreCardSummary {
+            id: row.0,
+            lore_type: row.1,
+            internal_category: row.2,
+            title: row.3,
+            description: row.4,
+            weight: row.5,
+            pinned: row.6 != 0,
+            text_canon_status: row.7,
+            visual_canon_status: row.8,
+            display_order: row.9,
+        })
+        .collect())
 }
 
 #[tauri::command]

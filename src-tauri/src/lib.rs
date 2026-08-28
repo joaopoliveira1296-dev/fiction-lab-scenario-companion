@@ -26,6 +26,7 @@ pub fn run() {
             commands::get_scenario_overview,
             commands::get_scenario_story,
             commands::get_scenario_story_limits,
+            commands::list_lore_cards,
             commands::update_scenario_backstory,
             commands::update_scenario_greeting,
             commands::update_scenario_custom_instructions,
