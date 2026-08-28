@@ -117,13 +117,23 @@ export function ScenarioWorkspace() {
     "idle" | "saved" | "error"
   >("idle");
 
+  const [greetingSaveError, setGreetingSaveError] = useState<string | null>(
+    null,
+  );
+
   const [customInstructionsSaveStatus, setCustomInstructionsSaveStatus] =
     useState<"idle" | "saved" | "error">("idle");
+
+  const [customInstructionsSaveError, setCustomInstructionsSaveError] =
+    useState<string | null>(null);
 
   const [isSavingBackstory, setIsSavingBackstory] = useState(false);
   const [backstorySaveStatus, setBackstorySaveStatus] = useState<
     "idle" | "saved" | "error"
   >("idle");
+  const [backstorySaveError, setBackstorySaveError] = useState<string | null>(
+    null,
+  );
 
   const activeSection: WorkspaceSection = WORKSPACE_SECTIONS.some(
     (item) => item.id === section,
@@ -269,6 +279,7 @@ export function ScenarioWorkspace() {
 
     setIsSavingBackstory(true);
     setBackstorySaveStatus("idle");
+    setBackstorySaveError(null);
 
     try {
       await invoke("update_scenario_backstory", {
@@ -285,6 +296,11 @@ export function ScenarioWorkspace() {
       }, 1800);
     } catch (error) {
       console.error("Could not save Backstory:", error);
+
+      setBackstorySaveError(
+        typeof error === "string" ? error : "Could not save Backstory.",
+      );
+
       setBackstorySaveStatus("error");
     } finally {
       setIsSavingBackstory(false);
@@ -298,6 +314,7 @@ export function ScenarioWorkspace() {
 
     setIsSavingGreeting(true);
     setGreetingSaveStatus("idle");
+    setGreetingSaveError(null);
 
     try {
       await invoke("update_scenario_greeting", {
@@ -314,6 +331,11 @@ export function ScenarioWorkspace() {
       }, 1800);
     } catch (error) {
       console.error("Could not save Greeting:", error);
+
+      setGreetingSaveError(
+        typeof error === "string" ? error : "Could not save Greeting.",
+      );
+
       setGreetingSaveStatus("error");
     } finally {
       setIsSavingGreeting(false);
@@ -327,6 +349,7 @@ export function ScenarioWorkspace() {
 
     setIsSavingCustomInstructions(true);
     setCustomInstructionsSaveStatus("idle");
+    setCustomInstructionsSaveError(null);
 
     try {
       await invoke("update_scenario_custom_instructions", {
@@ -343,6 +366,13 @@ export function ScenarioWorkspace() {
       }, 1800);
     } catch (error) {
       console.error("Could not save Custom Scenario Instructions:", error);
+
+      setCustomInstructionsSaveError(
+        typeof error === "string"
+          ? error
+          : "Could not save Custom Scenario Instructions.",
+      );
+
       setCustomInstructionsSaveStatus("error");
     } finally {
       setIsSavingCustomInstructions(false);
@@ -592,7 +622,7 @@ export function ScenarioWorkspace() {
 
                       {backstorySaveStatus === "error" && (
                         <span className="story-save-status story-save-status-error">
-                          Could not save
+                          {backstorySaveError ?? "Could not save Backstory."}
                         </span>
                       )}
                     </div>
@@ -649,7 +679,7 @@ export function ScenarioWorkspace() {
 
                       {greetingSaveStatus === "error" && (
                         <span className="story-save-status story-save-status-error">
-                          Could not save
+                          {greetingSaveError ?? "Could not save Greeting."}
                         </span>
                       )}
                     </div>
@@ -710,7 +740,8 @@ export function ScenarioWorkspace() {
 
                       {customInstructionsSaveStatus === "error" && (
                         <span className="story-save-status story-save-status-error">
-                          Could not save
+                          {customInstructionsSaveError ??
+                            "Could not save Custom Scenario Instructions."}
                         </span>
                       )}
                     </div>
