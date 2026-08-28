@@ -90,8 +90,11 @@ export function ScenarioWorkspace() {
 
   const [overview, setOverview] = useState<ScenarioOverview | null>(null);
   const [backstoryDraft, setBackstoryDraft] = useState("");
+  const [savedBackstory, setSavedBackstory] = useState("");
   const [greetingDraft, setGreetingDraft] = useState("");
+  const [savedGreeting, setSavedGreeting] = useState("");
   const [customInstructionsDraft, setCustomInstructionsDraft] = useState("");
+  const [savedCustomInstructions, setSavedCustomInstructions] = useState("");
   const [isSavingGreeting, setIsSavingGreeting] = useState(false);
   const [isSavingCustomInstructions, setIsSavingCustomInstructions] =
     useState(false);
@@ -107,6 +110,7 @@ export function ScenarioWorkspace() {
   const [backstorySaveStatus, setBackstorySaveStatus] = useState<
     "idle" | "saved" | "error"
   >("idle");
+
   const activeSection: WorkspaceSection = WORKSPACE_SECTIONS.some(
     (item) => item.id === section,
   )
@@ -143,8 +147,11 @@ export function ScenarioWorkspace() {
         });
 
         setBackstoryDraft(storyResult.backstory);
+        setSavedBackstory(storyResult.backstory);
         setGreetingDraft(storyResult.greeting);
+        setSavedGreeting(storyResult.greeting);
         setCustomInstructionsDraft(storyResult.customInstructions);
+        setSavedCustomInstructions(storyResult.customInstructions);
 
         setOverview(overviewResult);
       } catch (error) {
@@ -175,6 +182,7 @@ export function ScenarioWorkspace() {
         },
       });
 
+      setSavedBackstory(backstoryDraft);
       setBackstorySaveStatus("saved");
     } catch (error) {
       console.error("Could not save Backstory:", error);
@@ -200,6 +208,7 @@ export function ScenarioWorkspace() {
         },
       });
 
+      setSavedGreeting(greetingDraft);
       setGreetingSaveStatus("saved");
     } catch (error) {
       console.error("Could not save Greeting:", error);
@@ -225,6 +234,7 @@ export function ScenarioWorkspace() {
         },
       });
 
+      setSavedCustomInstructions(customInstructionsDraft);
       setCustomInstructionsSaveStatus("saved");
     } catch (error) {
       console.error("Could not save Custom Scenario Instructions:", error);
@@ -403,6 +413,11 @@ export function ScenarioWorkspace() {
                       <span className="story-save-status">Saved</span>
                     )}
 
+                    {backstoryDraft !== savedBackstory &&
+                      backstorySaveStatus !== "error" && (
+                        <span className="story-save-status">Unsaved</span>
+                      )}
+
                     {backstorySaveStatus === "error" && (
                       <span className="story-save-status story-save-status-error">
                         Could not save
@@ -438,6 +453,11 @@ export function ScenarioWorkspace() {
                     {greetingSaveStatus === "saved" && (
                       <span className="story-save-status">Saved</span>
                     )}
+
+                    {greetingDraft !== savedGreeting &&
+                      greetingSaveStatus !== "error" && (
+                        <span className="story-save-status">Unsaved</span>
+                      )}
 
                     {greetingSaveStatus === "error" && (
                       <span className="story-save-status story-save-status-error">
@@ -476,6 +496,11 @@ export function ScenarioWorkspace() {
                     {customInstructionsSaveStatus === "saved" && (
                       <span className="story-save-status">Saved</span>
                     )}
+
+                    {customInstructionsDraft !== savedCustomInstructions &&
+                      customInstructionsSaveStatus !== "error" && (
+                        <span className="story-save-status">Unsaved</span>
+                      )}
 
                     {customInstructionsSaveStatus === "error" && (
                       <span className="story-save-status story-save-status-error">
