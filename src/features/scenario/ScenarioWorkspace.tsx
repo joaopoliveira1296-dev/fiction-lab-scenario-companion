@@ -51,6 +51,7 @@ interface LoreCardSummary {
   internalCategory: string;
   title: string;
   description: string;
+  content: string;
   weight: string;
   pinned: boolean;
   textCanonStatus: string;
@@ -134,6 +135,13 @@ export function ScenarioWorkspace() {
   const [selectedLoreType, setSelectedLoreType] = useState("CHARACTER");
   const [selectedLoreInternalCategory, setSelectedLoreInternalCategory] =
     useState("Other");
+  const [selectedLoreDescription, setSelectedLoreDescription] = useState("");
+  const [selectedLoreContent, setSelectedLoreContent] = useState("");
+  const [selectedLorePinned, setSelectedLorePinned] = useState(false);
+  const [selectedLoreTextCanonStatus, setSelectedLoreTextCanonStatus] =
+    useState("DRAFT");
+  const [selectedLoreVisualCanonStatus, setSelectedLoreVisualCanonStatus] =
+    useState("NOT_STARTED");
   const [loreEditorError, setLoreEditorError] = useState<string | null>(null);
   const [isCreatingLoreCard, setIsCreatingLoreCard] = useState(false);
   const [newLoreType, setNewLoreType] = useState("CHARACTER");
@@ -395,6 +403,182 @@ export function ScenarioWorkspace() {
         typeof error === "string"
           ? error
           : "Could not update the Lore Card Internal Category.",
+      );
+    }
+  }
+
+  async function updateSelectedLoreDescription() {
+    if (!selectedLoreCard) {
+      return;
+    }
+
+    const previousDescription = selectedLoreCard.description;
+
+    setLoreEditorError(null);
+
+    try {
+      await invoke("update_lore_card_description", {
+        input: {
+          loreCardId: selectedLoreCard.id,
+          description: selectedLoreDescription,
+        },
+      });
+
+      setLoreCards((currentCards) =>
+        currentCards.map((card) =>
+          card.id === selectedLoreCard.id
+            ? { ...card, description: selectedLoreDescription }
+            : card,
+        ),
+      );
+    } catch (error) {
+      setSelectedLoreDescription(previousDescription);
+
+      setLoreEditorError(
+        typeof error === "string"
+          ? error
+          : "Could not update the Lore Card Description.",
+      );
+    }
+  }
+
+  async function updateSelectedLoreContent() {
+    if (!selectedLoreCard) {
+      return;
+    }
+
+    const previousContent = selectedLoreCard.content;
+
+    setLoreEditorError(null);
+
+    try {
+      await invoke("update_lore_card_content", {
+        input: {
+          loreCardId: selectedLoreCard.id,
+          content: selectedLoreContent,
+        },
+      });
+
+      setLoreCards((currentCards) =>
+        currentCards.map((card) =>
+          card.id === selectedLoreCard.id
+            ? { ...card, content: selectedLoreContent }
+            : card,
+        ),
+      );
+    } catch (error) {
+      setSelectedLoreContent(previousContent);
+
+      setLoreEditorError(
+        typeof error === "string"
+          ? error
+          : "Could not update the Lore Card Content.",
+      );
+    }
+  }
+
+  async function updateSelectedLorePinned(pinned: boolean) {
+    if (!selectedLoreCard) {
+      return;
+    }
+
+    const previousPinned = selectedLorePinned;
+
+    setLoreEditorError(null);
+    setSelectedLorePinned(pinned);
+
+    try {
+      await invoke("update_lore_card_pinned", {
+        input: {
+          loreCardId: selectedLoreCard.id,
+          pinned,
+        },
+      });
+
+      setLoreCards((currentCards) =>
+        currentCards.map((card) =>
+          card.id === selectedLoreCard.id ? { ...card, pinned } : card,
+        ),
+      );
+    } catch (error) {
+      setSelectedLorePinned(previousPinned);
+
+      setLoreEditorError(
+        typeof error === "string"
+          ? error
+          : "Could not update the Lore Card Pinned state.",
+      );
+    }
+  }
+
+  async function updateSelectedLoreTextCanonStatus(textCanonStatus: string) {
+    if (!selectedLoreCard) {
+      return;
+    }
+
+    const previousStatus = selectedLoreTextCanonStatus;
+
+    setLoreEditorError(null);
+    setSelectedLoreTextCanonStatus(textCanonStatus);
+
+    try {
+      await invoke("update_lore_card_text_canon_status", {
+        input: {
+          loreCardId: selectedLoreCard.id,
+          textCanonStatus,
+        },
+      });
+
+      setLoreCards((currentCards) =>
+        currentCards.map((card) =>
+          card.id === selectedLoreCard.id ? { ...card, textCanonStatus } : card,
+        ),
+      );
+    } catch (error) {
+      setSelectedLoreTextCanonStatus(previousStatus);
+
+      setLoreEditorError(
+        typeof error === "string"
+          ? error
+          : "Could not update the Lore Card Text Canon Status.",
+      );
+    }
+  }
+
+  async function updateSelectedLoreVisualCanonStatus(
+    visualCanonStatus: string,
+  ) {
+    if (!selectedLoreCard) {
+      return;
+    }
+
+    const previousStatus = selectedLoreVisualCanonStatus;
+
+    setLoreEditorError(null);
+    setSelectedLoreVisualCanonStatus(visualCanonStatus);
+
+    try {
+      await invoke("update_lore_card_visual_canon_status", {
+        input: {
+          loreCardId: selectedLoreCard.id,
+          visualCanonStatus,
+        },
+      });
+
+      setLoreCards((currentCards) =>
+        currentCards.map((card) =>
+          card.id === selectedLoreCard.id
+            ? { ...card, visualCanonStatus }
+            : card,
+        ),
+      );
+    } catch (error) {
+      setSelectedLoreVisualCanonStatus(previousStatus);
+
+      setLoreEditorError(
+        typeof error === "string"
+          ? error
+          : "Could not update the Lore Card Visual Canon Status.",
       );
     }
   }
@@ -1108,6 +1292,13 @@ export function ScenarioWorkspace() {
                         setSelectedLoreTitle(card.title);
                         setSelectedLoreType(card.loreType);
                         setSelectedLoreInternalCategory(card.internalCategory);
+                        setSelectedLoreDescription(card.description);
+                        setSelectedLoreContent(card.content);
+                        setSelectedLorePinned(card.pinned);
+                        setSelectedLoreTextCanonStatus(card.textCanonStatus);
+                        setSelectedLoreVisualCanonStatus(
+                          card.visualCanonStatus,
+                        );
                       }}
                     >
                       <div className="lore-list-card-header">
@@ -1172,7 +1363,38 @@ export function ScenarioWorkspace() {
                       Close
                     </button>
                   </div>
-
+                  <label className="lore-editor-description">
+                    Description
+                    <textarea
+                      value={selectedLoreDescription}
+                      onChange={(event) =>
+                        setSelectedLoreDescription(event.target.value)
+                      }
+                      onBlur={() => void updateSelectedLoreDescription()}
+                      rows={3}
+                    />
+                  </label>
+                  <label className="lore-editor-content">
+                    Content
+                    <textarea
+                      value={selectedLoreContent}
+                      onChange={(event) =>
+                        setSelectedLoreContent(event.target.value)
+                      }
+                      onBlur={() => void updateSelectedLoreContent()}
+                      rows={8}
+                    />
+                  </label>
+                  <label className="lore-editor-pinned">
+                    <input
+                      type="checkbox"
+                      checked={selectedLorePinned}
+                      onChange={(event) =>
+                        void updateSelectedLorePinned(event.target.checked)
+                      }
+                    />
+                    Pinned
+                  </label>
                   <dl>
                     <div>
                       <dt>Internal Category</dt>
@@ -1267,12 +1489,43 @@ export function ScenarioWorkspace() {
 
                     <div>
                       <dt>Text Canon Status</dt>
-                      <dd>{selectedLoreCard.textCanonStatus}</dd>
+
+                      <dd>
+                        <select
+                          value={selectedLoreTextCanonStatus}
+                          onChange={(event) =>
+                            void updateSelectedLoreTextCanonStatus(
+                              event.target.value,
+                            )
+                          }
+                        >
+                          <option value="OPEN">Open</option>
+                          <option value="DRAFT">Draft</option>
+                          <option value="READY_FOR_PLATFORM_CHECK">
+                            Ready for Platform Check
+                          </option>
+                          <option value="CANON_CLOSED">Canon Closed</option>
+                        </select>
+                      </dd>
                     </div>
 
                     <div>
                       <dt>Visual Canon Status</dt>
-                      <dd>{selectedLoreCard.visualCanonStatus}</dd>
+
+                      <dd>
+                        <select
+                          value={selectedLoreVisualCanonStatus}
+                          onChange={(event) =>
+                            void updateSelectedLoreVisualCanonStatus(
+                              event.target.value,
+                            )
+                          }
+                        >
+                          <option value="NOT_STARTED">Not Started</option>
+                          <option value="IN_PROGRESS">In Progress</option>
+                          <option value="VISUAL_CANON">Visual Canon</option>
+                        </select>
+                      </dd>
                     </div>
                   </dl>
                   {loreEditorError && (

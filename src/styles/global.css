@@ -1350,6 +1350,40 @@ select:hover {
   color: #eef2f1;
 }
 
+.lore-editor-description {
+  display: grid;
+  gap: 6px;
+
+  color: #cbd5e1;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.lore-editor-description textarea {
+  width: 100%;
+  min-height: 96px;
+
+  resize: vertical;
+}
+
+.lore-editor-content {
+  display: grid;
+  gap: 6px;
+
+  color: #cbd5e1;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.lore-editor-content textarea {
+  width: 100%;
+  min-height: 220px;
+
+  resize: vertical;
+}
+
 .lore-weight-field {
   display: grid;
   gap: 10px;
@@ -1434,6 +1468,24 @@ select:hover {
   border-color: #facc15;
 
   background: #f59e0b;
+}
+
+.lore-editor-pinned {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  width: fit-content;
+
+  color: #cbd5e1;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.lore-editor-pinned input {
+  width: 16px;
+  height: 16px;
 }
 
 .workspace-empty-state strong {

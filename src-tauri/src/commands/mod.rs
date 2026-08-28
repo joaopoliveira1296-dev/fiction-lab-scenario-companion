@@ -274,6 +274,7 @@ pub struct LoreCardSummary {
     pub internal_category: String,
     pub title: String,
     pub description: String,
+    pub content: String,
     pub weight: String,
     pub pinned: bool,
     pub text_canon_status: String,
@@ -317,6 +318,41 @@ pub struct UpdateLoreCardTypeInput {
 pub struct UpdateLoreCardInternalCategoryInput {
     pub lore_card_id: String,
     pub internal_category: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateLoreCardDescriptionInput {
+    pub lore_card_id: String,
+    pub description: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateLoreCardContentInput {
+    pub lore_card_id: String,
+    pub content: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateLoreCardPinnedInput {
+    pub lore_card_id: String,
+    pub pinned: bool,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateLoreCardTextCanonStatusInput {
+    pub lore_card_id: String,
+    pub text_canon_status: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateLoreCardVisualCanonStatusInput {
+    pub lore_card_id: String,
+    pub visual_canon_status: String,
 }
 
 async fn get_scenario_limit(
@@ -389,6 +425,7 @@ pub async fn list_lore_cards(
             String,
             String,
             String,
+            String,
             i64,
             String,
             String,
@@ -402,6 +439,7 @@ pub async fn list_lore_cards(
             internal_category,
             title,
             description,
+            content,
             weight,
             pinned,
             text_canon_status,
@@ -426,11 +464,12 @@ pub async fn list_lore_cards(
             internal_category: row.2,
             title: row.3,
             description: row.4,
-            weight: row.5,
-            pinned: row.6 != 0,
-            text_canon_status: row.7,
-            visual_canon_status: row.8,
-            display_order: row.9,
+            content: row.5,
+            weight: row.6,
+            pinned: row.7 != 0,
+            text_canon_status: row.8,
+            visual_canon_status: row.9,
+            display_order: row.10,
         })
         .collect())
 }
@@ -496,6 +535,7 @@ pub async fn create_lore_card(
         internal_category: input.internal_category,
         title,
         description: String::new(),
+        content: String::new(),
         weight: input.weight,
         pinned: false,
         text_canon_status: "DRAFT".to_string(),
@@ -601,6 +641,131 @@ pub async fn update_lore_card_internal_category(
         "#,
     )
     .bind(&input.internal_category)
+    .bind(&now)
+    .bind(&input.lore_card_id)
+    .execute(&state.db)
+    .await
+    .map_err(|error| error.to_string())?;
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn update_lore_card_description(
+    state: State<'_, Arc<AppState>>,
+    input: UpdateLoreCardDescriptionInput,
+) -> Result<(), String> {
+    let now = Utc::now().to_rfc3339();
+
+    sqlx::query(
+        r#"
+        UPDATE lore_cards
+        SET description = ?,
+            updated_at = ?
+        WHERE id = ?
+        "#,
+    )
+    .bind(&input.description)
+    .bind(&now)
+    .bind(&input.lore_card_id)
+    .execute(&state.db)
+    .await
+    .map_err(|error| error.to_string())?;
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn update_lore_card_content(
+    state: State<'_, Arc<AppState>>,
+    input: UpdateLoreCardContentInput,
+) -> Result<(), String> {
+    let now = Utc::now().to_rfc3339();
+
+    sqlx::query(
+        r#"
+        UPDATE lore_cards
+        SET content = ?,
+            updated_at = ?
+        WHERE id = ?
+        "#,
+    )
+    .bind(&input.content)
+    .bind(&now)
+    .bind(&input.lore_card_id)
+    .execute(&state.db)
+    .await
+    .map_err(|error| error.to_string())?;
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn update_lore_card_pinned(
+    state: State<'_, Arc<AppState>>,
+    input: UpdateLoreCardPinnedInput,
+) -> Result<(), String> {
+    let now = Utc::now().to_rfc3339();
+
+    sqlx::query(
+        r#"
+        UPDATE lore_cards
+        SET pinned = ?,
+            updated_at = ?
+        WHERE id = ?
+        "#,
+    )
+    .bind(if input.pinned { 1 } else { 0 })
+    .bind(&now)
+    .bind(&input.lore_card_id)
+    .execute(&state.db)
+    .await
+    .map_err(|error| error.to_string())?;
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn update_lore_card_text_canon_status(
+    state: State<'_, Arc<AppState>>,
+    input: UpdateLoreCardTextCanonStatusInput,
+) -> Result<(), String> {
+    let now = Utc::now().to_rfc3339();
+
+    sqlx::query(
+        r#"
+        UPDATE lore_cards
+        SET text_canon_status = ?,
+            updated_at = ?
+        WHERE id = ?
+        "#,
+    )
+    .bind(&input.text_canon_status)
+    .bind(&now)
+    .bind(&input.lore_card_id)
+    .execute(&state.db)
+    .await
+    .map_err(|error| error.to_string())?;
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn update_lore_card_visual_canon_status(
+    state: State<'_, Arc<AppState>>,
+    input: UpdateLoreCardVisualCanonStatusInput,
+) -> Result<(), String> {
+    let now = Utc::now().to_rfc3339();
+
+    sqlx::query(
+        r#"
+        UPDATE lore_cards
+        SET visual_canon_status = ?,
+            updated_at = ?
+        WHERE id = ?
+        "#,
+    )
+    .bind(&input.visual_canon_status)
     .bind(&now)
     .bind(&input.lore_card_id)
     .execute(&state.db)
