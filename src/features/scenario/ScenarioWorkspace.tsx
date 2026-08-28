@@ -11,13 +11,17 @@ import {
 } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import {
+  FICTION_LAB_PLAN_PROFILES,
+  type FictionLabPlan,
+} from "../../config/fictionLabPlatform";
 
 interface ScenarioSummary {
   id: string;
   name: string;
   description: string;
   status: string;
-  fictionLabPlan: string;
+  fictionLabPlan: FictionLabPlan;
   tags: string[];
   createdAt: string;
   updatedAt: string;
@@ -123,6 +127,14 @@ export function ScenarioWorkspace() {
     ? (section as WorkspaceSection)
     : "overview";
 
+  const activeFictionLabProfile = scenario
+    ? FICTION_LAB_PLAN_PROFILES[scenario.fictionLabPlan]
+    : null;
+
+  const backstoryLimit = activeFictionLabProfile?.story.backstory ?? null;
+  const greetingLimit = activeFictionLabProfile?.story.greeting ?? null;
+  const customInstructionsLimit =
+    activeFictionLabProfile?.story.customInstructions ?? null;
   useEffect(() => {
     async function loadScenario() {
       if (!scenarioId) {
@@ -214,7 +226,7 @@ export function ScenarioWorkspace() {
     };
   }, [customInstructionsDraft, savedCustomInstructions]);
 
-  async function saveFictionLabPlan(fictionLabPlan: string) {
+  async function saveFictionLabPlan(fictionLabPlan: FictionLabPlan) {
     if (!scenarioId || !scenario) {
       return;
     }
@@ -428,13 +440,22 @@ export function ScenarioWorkspace() {
                     <select
                       value={scenario.fictionLabPlan}
                       onChange={(event) =>
-                        void saveFictionLabPlan(event.target.value)
+                        void saveFictionLabPlan(
+                          event.target.value as FictionLabPlan,
+                        )
                       }
                       disabled={isSavingFictionLabPlan}
                     >
-                      <option value="FREE">Free</option>
-                      <option value="PLUS">Plus</option>
-                      <option value="ULTRA">Ultra</option>
+                      {(
+                        Object.entries(FICTION_LAB_PLAN_PROFILES) as [
+                          FictionLabPlan,
+                          (typeof FICTION_LAB_PLAN_PROFILES)[FictionLabPlan],
+                        ][]
+                      ).map(([plan, profile]) => (
+                        <option key={plan} value={plan}>
+                          {profile.label}
+                        </option>
+                      ))}
                     </select>
                   </label>
 
@@ -576,7 +597,9 @@ export function ScenarioWorkspace() {
                     placeholder="No Backstory yet."
                   />
                   <div className="story-character-count">
-                    {backstoryDraft.length} characters
+                    {backstoryLimit === null
+                      ? `${backstoryDraft.length} characters`
+                      : `${backstoryDraft.length} / ${backstoryLimit} characters`}
                   </div>
                 </div>
               )}
@@ -625,7 +648,9 @@ export function ScenarioWorkspace() {
                     placeholder="No Greeting yet."
                   />
                   <div className="story-character-count">
-                    {greetingDraft.length} characters
+                    {greetingLimit === null
+                      ? `${greetingDraft.length} characters`
+                      : `${greetingDraft.length} / ${greetingLimit} characters`}
                   </div>
                 </div>
               )}
@@ -677,7 +702,9 @@ export function ScenarioWorkspace() {
                     placeholder="No Custom Scenario Instructions yet."
                   />
                   <div className="story-character-count">
-                    {customInstructionsDraft.length} characters
+                    {customInstructionsLimit === null
+                      ? `${customInstructionsDraft.length} characters`
+                      : `${customInstructionsDraft.length} / ${customInstructionsLimit} characters`}
                   </div>
                 </div>
               )}
