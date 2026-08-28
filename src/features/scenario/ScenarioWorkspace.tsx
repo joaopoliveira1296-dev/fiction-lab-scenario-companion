@@ -184,6 +184,9 @@ export function ScenarioWorkspace() {
 
       setSavedBackstory(backstoryDraft);
       setBackstorySaveStatus("saved");
+      setTimeout(() => {
+        setBackstorySaveStatus("idle");
+      }, 1800);
     } catch (error) {
       console.error("Could not save Backstory:", error);
       setBackstorySaveStatus("error");
@@ -210,6 +213,9 @@ export function ScenarioWorkspace() {
 
       setSavedGreeting(greetingDraft);
       setGreetingSaveStatus("saved");
+      setTimeout(() => {
+        setGreetingSaveStatus("idle");
+      }, 1800);
     } catch (error) {
       console.error("Could not save Greeting:", error);
       setGreetingSaveStatus("error");
@@ -236,6 +242,9 @@ export function ScenarioWorkspace() {
 
       setSavedCustomInstructions(customInstructionsDraft);
       setCustomInstructionsSaveStatus("saved");
+      setTimeout(() => {
+        setCustomInstructionsSaveStatus("idle");
+      }, 1800);
     } catch (error) {
       console.error("Could not save Custom Scenario Instructions:", error);
       setCustomInstructionsSaveStatus("error");
@@ -404,7 +413,9 @@ export function ScenarioWorkspace() {
                       type="button"
                       className="button button-secondary"
                       onClick={() => void saveBackstory()}
-                      disabled={isSavingBackstory}
+                      disabled={
+                        isSavingBackstory || backstoryDraft === savedBackstory
+                      }
                     >
                       {isSavingBackstory ? "Saving..." : "Save Backstory"}
                     </button>
@@ -445,7 +456,9 @@ export function ScenarioWorkspace() {
                       type="button"
                       className="button button-secondary"
                       onClick={() => void saveGreeting()}
-                      disabled={isSavingGreeting}
+                      disabled={
+                        isSavingGreeting || greetingDraft === savedGreeting
+                      }
                     >
                       {isSavingGreeting ? "Saving..." : "Save Greeting"}
                     </button>
@@ -486,7 +499,10 @@ export function ScenarioWorkspace() {
                       type="button"
                       className="button button-secondary"
                       onClick={() => void saveCustomInstructions()}
-                      disabled={isSavingCustomInstructions}
+                      disabled={
+                        isSavingCustomInstructions ||
+                        customInstructionsDraft === savedCustomInstructions
+                      }
                     >
                       {isSavingCustomInstructions
                         ? "Saving..."
