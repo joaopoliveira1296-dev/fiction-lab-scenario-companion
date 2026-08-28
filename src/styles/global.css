@@ -1291,6 +1291,17 @@ select:hover {
   gap: 16px;
 }
 
+.lore-editor-preview-header > div {
+  display: grid;
+  gap: 6px;
+  flex: 1;
+}
+
+.lore-editor-preview-header input {
+  width: 100%;
+  max-width: 420px;
+}
+
 .lore-editor-preview-header span {
   color: #7dd3fc;
 

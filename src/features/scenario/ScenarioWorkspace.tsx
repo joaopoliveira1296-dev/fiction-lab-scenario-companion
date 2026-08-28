@@ -130,6 +130,11 @@ export function ScenarioWorkspace() {
     null,
   );
   const [selectedLoreWeight, setSelectedLoreWeight] = useState("STANDARD");
+  const [selectedLoreTitle, setSelectedLoreTitle] = useState("");
+  const [selectedLoreType, setSelectedLoreType] = useState("CHARACTER");
+  const [selectedLoreInternalCategory, setSelectedLoreInternalCategory] =
+    useState("Other");
+  const [loreEditorError, setLoreEditorError] = useState<string | null>(null);
   const [isCreatingLoreCard, setIsCreatingLoreCard] = useState(false);
   const [newLoreType, setNewLoreType] = useState("CHARACTER");
   const [newLoreInternalCategory, setNewLoreInternalCategory] =
@@ -281,6 +286,115 @@ export function ScenarioWorkspace() {
     } catch (error) {
       setLoreCreateError(
         typeof error === "string" ? error : "Could not create the Lore Card.",
+      );
+    }
+  }
+
+  async function updateSelectedLoreTitle() {
+    if (!selectedLoreCard) {
+      return;
+    }
+
+    const previousTitle = selectedLoreCard.title;
+
+    setLoreEditorError(null);
+
+    try {
+      await invoke("update_lore_card_title", {
+        input: {
+          loreCardId: selectedLoreCard.id,
+          title: selectedLoreTitle,
+        },
+      });
+
+      const trimmedTitle = selectedLoreTitle.trim();
+
+      setLoreCards((currentCards) =>
+        currentCards.map((card) =>
+          card.id === selectedLoreCard.id
+            ? { ...card, title: trimmedTitle }
+            : card,
+        ),
+      );
+
+      setSelectedLoreTitle(trimmedTitle);
+    } catch (error) {
+      setSelectedLoreTitle(previousTitle);
+
+      setLoreEditorError(
+        typeof error === "string"
+          ? error
+          : "Could not update the Lore Card Title.",
+      );
+    }
+  }
+
+  async function updateSelectedLoreType(loreType: string) {
+    if (!selectedLoreCard) {
+      return;
+    }
+
+    const previousType = selectedLoreType;
+
+    setLoreEditorError(null);
+    setSelectedLoreType(loreType);
+
+    try {
+      await invoke("update_lore_card_type", {
+        input: {
+          loreCardId: selectedLoreCard.id,
+          loreType,
+        },
+      });
+
+      setLoreCards((currentCards) =>
+        currentCards.map((card) =>
+          card.id === selectedLoreCard.id ? { ...card, loreType } : card,
+        ),
+      );
+    } catch (error) {
+      setSelectedLoreType(previousType);
+
+      setLoreEditorError(
+        typeof error === "string"
+          ? error
+          : "Could not update the Lore Card Type.",
+      );
+    }
+  }
+
+  async function updateSelectedLoreInternalCategory(internalCategory: string) {
+    if (!selectedLoreCard) {
+      return;
+    }
+
+    const previousInternalCategory = selectedLoreInternalCategory;
+
+    setLoreEditorError(null);
+    setSelectedLoreInternalCategory(internalCategory);
+
+    try {
+      await invoke("update_lore_card_internal_category", {
+        input: {
+          loreCardId: selectedLoreCard.id,
+          internalCategory,
+        },
+      });
+
+      setLoreCards((currentCards) =>
+        currentCards.map((card) =>
+          card.id === selectedLoreCard.id
+            ? { ...card, internalCategory }
+            : card,
+        ),
+      );
+    } catch (error) {
+      setSelectedLoreInternalCategory(previousInternalCategory);
+
+      setLoreEditorError(
+        typeof error === "string"
+          ? error
+          : "Could not update the Lore Card Internal Category.",
       );
     }
   }
@@ -991,6 +1105,9 @@ export function ScenarioWorkspace() {
                       onClick={() => {
                         setSelectedLoreCardId(card.id);
                         setSelectedLoreWeight(card.weight);
+                        setSelectedLoreTitle(card.title);
+                        setSelectedLoreType(card.loreType);
+                        setSelectedLoreInternalCategory(card.internalCategory);
                       }}
                     >
                       <div className="lore-list-card-header">
@@ -1024,8 +1141,28 @@ export function ScenarioWorkspace() {
                 <div className="lore-editor-preview">
                   <div className="lore-editor-preview-header">
                     <div>
-                      <span>{selectedLoreCard.loreType}</span>
-                      <h3>{selectedLoreCard.title}</h3>
+                      <select
+                        value={selectedLoreType}
+                        onChange={(event) =>
+                          void updateSelectedLoreType(event.target.value)
+                        }
+                      >
+                        <option value="CHARACTER">Character</option>
+                        <option value="LOCATION">Location</option>
+                        <option value="PREMISE">Premise</option>
+                        <option value="FACTION">Faction</option>
+                        <option value="ITEM">Item</option>
+                        <option value="RACE">Race</option>
+                        <option value="RULE">Rule</option>
+                      </select>
+                      <input
+                        type="text"
+                        value={selectedLoreTitle}
+                        onChange={(event) =>
+                          setSelectedLoreTitle(event.target.value)
+                        }
+                        onBlur={() => void updateSelectedLoreTitle()}
+                      />
                     </div>
 
                     <button
@@ -1039,7 +1176,33 @@ export function ScenarioWorkspace() {
                   <dl>
                     <div>
                       <dt>Internal Category</dt>
-                      <dd>{selectedLoreCard.internalCategory}</dd>
+
+                      <dd>
+                        <select
+                          value={selectedLoreInternalCategory}
+                          onChange={(event) =>
+                            void updateSelectedLoreInternalCategory(
+                              event.target.value,
+                            )
+                          }
+                        >
+                          <option value="World Premise">World Premise</option>
+                          <option value="Conflict Matrix">
+                            Conflict Matrix
+                          </option>
+                          <option value="Routine / Schedule">
+                            Routine / Schedule
+                          </option>
+                          <option value="Wardrobe">Wardrobe</option>
+                          <option value="Relationship">Relationship</option>
+                          <option value="Arc">Arc</option>
+                          <option value="Visual Notes">Visual Notes</option>
+                          <option value="Professional Procedures">
+                            Professional Procedures
+                          </option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </dd>
                     </div>
 
                     <div className="lore-editor-weight">
@@ -1063,6 +1226,9 @@ export function ScenarioWorkspace() {
                                   : ""
                               }`}
                               onClick={() => {
+                                const previousWeight = selectedLoreWeight;
+
+                                setLoreEditorError(null);
                                 setSelectedLoreWeight(weight);
 
                                 void invoke("update_lore_card_weight", {
@@ -1070,15 +1236,25 @@ export function ScenarioWorkspace() {
                                     loreCardId: selectedLoreCard.id,
                                     weight,
                                   },
-                                }).then(() => {
-                                  setLoreCards((currentCards) =>
-                                    currentCards.map((card) =>
-                                      card.id === selectedLoreCard.id
-                                        ? { ...card, weight }
-                                        : card,
-                                    ),
-                                  );
-                                });
+                                })
+                                  .then(() => {
+                                    setLoreCards((currentCards) =>
+                                      currentCards.map((card) =>
+                                        card.id === selectedLoreCard.id
+                                          ? { ...card, weight }
+                                          : card,
+                                      ),
+                                    );
+                                  })
+                                  .catch((error) => {
+                                    setSelectedLoreWeight(previousWeight);
+
+                                    setLoreEditorError(
+                                      typeof error === "string"
+                                        ? error
+                                        : "Could not update the Lore Card Weight.",
+                                    );
+                                  });
                               }}
                             >
                               <span className="lore-weight-dot" />
@@ -1099,6 +1275,9 @@ export function ScenarioWorkspace() {
                       <dd>{selectedLoreCard.visualCanonStatus}</dd>
                     </div>
                   </dl>
+                  {loreEditorError && (
+                    <div className="lore-create-error">{loreEditorError}</div>
+                  )}
                 </div>
               )}
             </section>

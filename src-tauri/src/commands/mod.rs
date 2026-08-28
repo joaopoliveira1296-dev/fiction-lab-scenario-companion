@@ -298,6 +298,27 @@ pub struct UpdateLoreCardWeightInput {
     pub weight: String,
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateLoreCardTitleInput {
+    pub lore_card_id: String,
+    pub title: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateLoreCardTypeInput {
+    pub lore_card_id: String,
+    pub lore_type: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateLoreCardInternalCategoryInput {
+    pub lore_card_id: String,
+    pub internal_category: String,
+}
+
 async fn get_scenario_limit(
     pool: &sqlx::SqlitePool,
     scenario_id: &str,
@@ -499,6 +520,87 @@ pub async fn update_lore_card_weight(
         "#,
     )
     .bind(&input.weight)
+    .bind(&now)
+    .bind(&input.lore_card_id)
+    .execute(&state.db)
+    .await
+    .map_err(|error| error.to_string())?;
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn update_lore_card_title(
+    state: State<'_, Arc<AppState>>,
+    input: UpdateLoreCardTitleInput,
+) -> Result<(), String> {
+    let title = input.title.trim().to_string();
+
+    if title.is_empty() {
+        return Err("Lore Card Title is required.".to_string());
+    }
+
+    let now = Utc::now().to_rfc3339();
+
+    sqlx::query(
+        r#"
+        UPDATE lore_cards
+        SET title = ?,
+            updated_at = ?
+        WHERE id = ?
+        "#,
+    )
+    .bind(&title)
+    .bind(&now)
+    .bind(&input.lore_card_id)
+    .execute(&state.db)
+    .await
+    .map_err(|error| error.to_string())?;
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn update_lore_card_type(
+    state: State<'_, Arc<AppState>>,
+    input: UpdateLoreCardTypeInput,
+) -> Result<(), String> {
+    let now = Utc::now().to_rfc3339();
+
+    sqlx::query(
+        r#"
+        UPDATE lore_cards
+        SET type = ?,
+            updated_at = ?
+        WHERE id = ?
+        "#,
+    )
+    .bind(&input.lore_type)
+    .bind(&now)
+    .bind(&input.lore_card_id)
+    .execute(&state.db)
+    .await
+    .map_err(|error| error.to_string())?;
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn update_lore_card_internal_category(
+    state: State<'_, Arc<AppState>>,
+    input: UpdateLoreCardInternalCategoryInput,
+) -> Result<(), String> {
+    let now = Utc::now().to_rfc3339();
+
+    sqlx::query(
+        r#"
+        UPDATE lore_cards
+        SET internal_category = ?,
+            updated_at = ?
+        WHERE id = ?
+        "#,
+    )
+    .bind(&input.internal_category)
     .bind(&now)
     .bind(&input.lore_card_id)
     .execute(&state.db)
