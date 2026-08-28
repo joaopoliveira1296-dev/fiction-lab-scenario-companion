@@ -89,7 +89,6 @@ export function ScenarioWorkspace() {
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const [overview, setOverview] = useState<ScenarioOverview | null>(null);
-  const [story, setStory] = useState<ScenarioStory | null>(null);
   const [backstoryDraft, setBackstoryDraft] = useState("");
   const [greetingDraft, setGreetingDraft] = useState("");
   const [customInstructionsDraft, setCustomInstructionsDraft] = useState("");
@@ -143,7 +142,6 @@ export function ScenarioWorkspace() {
           scenarioId,
         });
 
-        setStory(storyResult);
         setBackstoryDraft(storyResult.backstory);
         setGreetingDraft(storyResult.greeting);
         setCustomInstructionsDraft(storyResult.customInstructions);
