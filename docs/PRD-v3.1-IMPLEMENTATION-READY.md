@@ -1,5 +1,4 @@
 # Fiction Lab Scenario Companion
-
 ## Project Definition & Requirements Document — v3.1 IMPLEMENTATION-READY
 
 # Table of Contents
@@ -306,6 +305,7 @@ Each Scenario should contain at minimum:
 
 `Main Details`, `Backstory / World Details`, `Greeting` and `Custom Scenario Instructions` are top-level Scenario fields, not Lore Cards.
 
+
 ## Fiction Lab Target Plan
 
 Each Scenario stores a **Fiction Lab Target Plan** used to determine the applicable Fiction Lab platform limits.
@@ -437,7 +437,6 @@ The application provides a fixed **Internal Category** controlled list:
 - Other
 
 Rules:
-
 - no custom Internal Categories in v1;
 - Internal Category is application-only metadata;
 - Internal Category never replaces the official Fiction Lab Type;
@@ -571,7 +570,6 @@ Connections manually originating from the current card.
 Example:
 
 **Outgoing**
-
 - João Millard
 - Millard Estate
 
@@ -582,7 +580,6 @@ Automatically derived backlinks.
 Example:
 
 **Incoming**
-
 - Evelyn Millard
 
 Incoming links must not be editable as if they were new outgoing links.
@@ -608,23 +605,18 @@ Supported v1 Scenario statuses:
 ## Status semantics
 
 ### Draft
-
 The Scenario exists but remains early or structurally incomplete.
 
 ### In Development
-
 Active scenario-building work is underway.
 
 ### Ready for Review
-
 The Scenario is considered ready for a broader review pass.
 
 ### Complete
-
 The Scenario is considered complete by the user.
 
 ### Archived
-
 The Scenario is retained for reference but is not currently active.
 
 Archived is an organizational state and is not equivalent to Trash.
@@ -693,18 +685,15 @@ Use concrete state counts instead.
 Recommended summary:
 
 ### Lore Cards
-
 - total count.
 
 ### Text progress
-
 - CANON CLOSED;
 - READY FOR PLATFORM CHECK;
 - DRAFT;
 - OPEN.
 
 ### Visual progress
-
 - VISUAL CANON;
 - IN PROGRESS;
 - NOT STARTED.
@@ -1093,44 +1082,36 @@ The editor should use explicit sections.
 Suggested layout:
 
 ## Primary Fields
-
 - Type
 - Internal Category
 - Title
 - Description
 
 ## Content
-
 - Content editor
 - live character count
 
 ## Retrieval
-
 - Weight
 - Pinned
 - Triggers
 
 ## Linked Pieces
-
 - outgoing list
 - incoming list
 - add connection control
 
 ## Character Metadata
-
 Visible only when Type = Character:
-
 - Traits
 
 ## Visual
-
 - Creation Prompt
 - Refinement Prompts
 - Final VISUAL CANON Image
 - Visual Status
 
 ## Internal
-
 - Text Canon Status
 - Visual Canon Status
 - Notes
@@ -1369,6 +1350,7 @@ The application should make the visual lineage readable as:
 `Creation Prompt → Refinement 1 → Refinement 2 → ... → VISUAL CANON`
 
 The MVP does not need to store every intermediate generated image. It stores the active managed image and automatically archived prior active images created through replacement; arbitrary intermediate generator outputs are not required.
+
 
 # 23. Clipboard Utilities
 
@@ -1664,11 +1646,9 @@ When an image is added:
 The Connections tab must separate:
 
 ### Outgoing
-
 Connections where the current card is Origin.
 
 ### Incoming
-
 Backlinks where the current card is Destination.
 
 Incoming backlinks are informative and must not be misrepresented as outgoing links.
@@ -1727,15 +1707,12 @@ Rules:
 Validation should distinguish:
 
 ### Errors
-
 Hard platform violations or structurally invalid states that must be corrected.
 
 ### Warnings
-
 Supported configurations that may reduce performance or deserve attention.
 
 ### Passed checks
-
 Useful confirmations where appropriate.
 
 Errors and warnings must not look semantically identical.
@@ -1749,6 +1726,7 @@ These are generic clipboard actions only.
 The application must not present them as documentation export, Fiction Lab transfer, Fiction Lab synchronization or automated platform-entry functionality.
 
 The Companion does not send data to Fiction Lab.
+
 
 ## Reader Mode
 
@@ -1983,11 +1961,9 @@ A graph is not the default representation.
 Within a Lore Card, Connections must be split into:
 
 ### Outgoing
-
 Connections where the current card is Origin.
 
 ### Incoming
-
 Connections where the current card is Destination.
 
 Incoming and Outgoing are two views of the same Connection record, not separate links.
@@ -2497,11 +2473,9 @@ Each profile has clear defaults and may expose optional customization through a 
 Designed for review by the Fiction Lab Scenario Architect Project.
 
 Primary format:
-
 - Markdown
 
 Optional format:
-
 - PDF
 
 Include by default:
@@ -2933,7 +2907,6 @@ The application remains:
 ## 41.1 Core stack
 
 ### Desktop shell
-
 **Tauri 2**
 
 Why:
@@ -2945,7 +2918,6 @@ Why:
 - suitable permission/capability model for a local application.
 
 ### Frontend
-
 **React + TypeScript**
 
 Build tooling:
@@ -2954,7 +2926,6 @@ Build tooling:
 - strict TypeScript configuration.
 
 ### Database
-
 **SQLite**
 
 Database access should be owned by the Tauri/Rust application layer rather than allowing arbitrary SQL to spread through React components.
@@ -2999,7 +2970,6 @@ SQLite + managed filesystem
 Responsibilities:
 
 ### React UI
-
 - rendering;
 - local form state;
 - navigation;
@@ -3007,13 +2977,11 @@ Responsibilities:
 - optimistic presentation where safe.
 
 ### Frontend application services
-
 - typed calls into Tauri;
 - query/cache coordination;
 - mapping backend errors into user-facing categories.
 
 ### Rust domain/service layer
-
 - business invariants;
 - transactions;
 - file operations;
@@ -3024,7 +2992,6 @@ Responsibilities:
 - database migrations.
 
 ### Repository layer
-
 - database reads/writes;
 - no UI logic.
 
@@ -3037,7 +3004,6 @@ Use separate tools for persistent data and temporary UI state.
 Recommended approach:
 
 ### Persistent / database-backed state
-
 **TanStack Query** or equivalent query-cache layer around typed Tauri commands.
 
 Use it for:
@@ -3050,7 +3016,6 @@ Use it for:
 - Library lists.
 
 ### Ephemeral UI state
-
 A small state store such as **Zustand**, or narrowly scoped React state/context, for:
 
 - sidebar collapsed state before persistence;
@@ -3062,7 +3027,6 @@ A small state store such as **Zustand**, or narrowly scoped React state/context,
 Do not mirror the complete database into one global frontend store.
 
 ### Forms
-
 Recommended:
 
 - React Hook Form;
@@ -3344,7 +3308,6 @@ Benefits:
 - a PDF library can be changed without rewriting export selection logic.
 
 ### Markdown
-
 Use a deterministic custom serializer.
 
 Requirements:
@@ -3356,7 +3319,6 @@ Requirements:
 - UTF-8.
 
 ### PDF
-
 Use an asynchronous PDF renderer suitable for long text and images.
 
 Preferred initial implementation candidate:
@@ -3399,18 +3361,14 @@ Do not serialize SQLite implementation details as the public backup contract.
 Validation exists at multiple layers.
 
 ### UI validation
-
 Fast feedback:
-
 - required fields;
 - controlled values;
 - character counters;
 - obvious form constraints.
 
 ### Domain validation
-
 Authoritative structural rules:
-
 - same-Scenario Connection endpoints;
 - unordered-pair Connection uniqueness;
 - card Type/Traits compatibility;
@@ -3419,9 +3377,7 @@ Authoritative structural rules:
 - active-image invariants.
 
 ### Database constraints
-
 Last-line integrity:
-
 - foreign keys;
 - unique indexes;
 - check constraints where useful.
@@ -3501,7 +3457,6 @@ Automatic application updating is out of MVP unless explicitly added later.
 Recommended test layers:
 
 ### Rust/domain tests
-
 Test:
 
 - Connection uniqueness/direction rules;
@@ -3513,7 +3468,6 @@ Test:
 - migrations.
 
 ### Frontend unit/component tests
-
 Use Vitest + Testing Library or equivalent for:
 
 - forms;
@@ -3523,11 +3477,9 @@ Use Vitest + Testing Library or equivalent for:
 - reusable design-system components.
 
 ### Integration tests
-
 Test typed frontend → Tauri command → database workflows for critical operations.
 
 ### Manual Windows QA
-
 Required for:
 
 - installer;
@@ -3620,7 +3572,6 @@ For v1, consider the following architecture approved:
 This is sufficiently specific to begin implementation after the final PRD audit.
 
 ---
-
 # 41A. Backup Strategy
 
 v1 uses complete manual Scenario backups in standard ZIP archives.
@@ -3962,7 +3913,6 @@ Archive paths must be normalized and validated before extraction.
 The database schema should model product concepts directly rather than duplicating UI structure.
 
 ## Scenario
-
 - id
 - name
 - description
@@ -3981,20 +3931,17 @@ The database schema should model product concepts directly rather than duplicati
 - updatedAt
 
 ## ScenarioTag
-
 - id
 - scenarioId
 - value
 - displayOrder
 
 Constraints:
-
 - maximum 5 active tags per Scenario;
 - value must come from the configured official Fiction Lab vocabulary;
 - no duplicate value within the same Scenario.
 
 ## LoreCard
-
 - id
 - scenarioId
 - type
@@ -4017,34 +3964,29 @@ Constraints:
 - updatedAt
 
 Rules:
-
 - `visualCanonStatus` may remain NOT STARTED for cards with no visual workflow;
 - local character count may be derived rather than persisted unless profiling shows a need;
 - `verifiedFictionLabCount` is optional/manual.
 
 ## Trigger
-
 - id
 - cardId
 - value
 - displayOrder
 
 ## CharacterTrait
-
 - id
 - cardId
 - value
 - displayOrder
 
 Constraints:
-
 - Character cards only;
 - official controlled vocabulary only;
 - maximum 10;
 - no duplicate Trait on one card.
 
 ## Connection
-
 - id
 - scenarioId
 - originCardId
@@ -4056,7 +3998,6 @@ Constraints:
 - updatedAt
 
 Statuses:
-
 - ACTIVE
 - DEFERRED
 - AFFECTED
@@ -4073,9 +4014,7 @@ Implement this with a database-level unique strategy over:
 so both exact duplicates and reverse duplicates are impossible even if UI validation fails.
 
 ## ConnectionEvent
-
 Minimal local history:
-
 - id
 - connectionId
 - eventType
@@ -4084,7 +4023,6 @@ Minimal local history:
 - createdAt
 
 Use only for meaningful structural events such as:
-
 - CREATED
 - STATUS_CHANGED
 - DIRECTION_REVERSED
@@ -4094,7 +4032,6 @@ Use only for meaningful structural events such as:
 This is not a full project Change Log system.
 
 ## VisualPrompt
-
 - id
 - cardId
 - type
@@ -4106,18 +4043,15 @@ This is not a full project Change Log system.
 - updatedAt
 
 Types:
-
 - CREATION
 - REFINEMENT
 
 Rules:
-
 - exactly zero or one CREATION prompt per Lore Card;
 - zero or more REFINEMENT prompts;
 - sequence preserves actual refinement order.
 
 ## CardImage
-
 - id
 - cardId
 - managedPath
@@ -4129,19 +4063,16 @@ Rules:
 - updatedAt
 
 States:
-
 - ACTIVE
 - ARCHIVED
 - MISSING
 
 Rules:
-
 - maximum one ACTIVE image per Lore Card in MVP;
 - archived images remain preserved;
 - VISUAL CANON approval itself is represented by the Lore Card visual status, not by pretending archived images are active.
 
 ## PlatformVerification
-
 - id
 - cardId
 - verifiedCount
@@ -4152,9 +4083,7 @@ Rules:
 A card may have multiple historical verification records if useful, with the latest one surfaced in normal UI.
 
 ## PlatformProfile
-
 Represents the centrally maintained Fiction Lab reference configuration:
-
 - id
 - plan
 - name
@@ -4168,7 +4097,6 @@ Represents the centrally maintained Fiction Lab reference configuration:
 - ULTRA
 
 ## PlatformLimit
-
 - id
 - profileId
 - key
@@ -4187,7 +4115,6 @@ Scenario validation resolves limits through:
 A plan change never mutates Scenario text. It only changes the active validation/reference profile.
 
 ## AppSetting
-
 - key
 - value
 - updatedAt
@@ -4195,9 +4122,7 @@ A plan change never mutates Scenario text. It only changes the active validation
 Store user preferences that belong to the Companion.
 
 ## OperationJournal
-
 Small crash-recovery marker table for multi-step destructive/staged filesystem operations:
-
 - id
 - operationType
 - scenarioId
@@ -4209,7 +4134,6 @@ Small crash-recovery marker table for multi-step destructive/staged filesystem o
 This is used for recovery detection, not ordinary history.
 
 ---
-
 # 43. Data Integrity Rules
 
 The application and database must enforce:
@@ -4240,7 +4164,6 @@ The application and database must enforce:
 Database constraints should back critical invariants wherever SQLite can express them.
 
 ---
-
 # 44. Deleting a Card
 
 `Delete` from normal Lore management means **Move to Trash**.
@@ -4263,7 +4186,6 @@ The database may use cascade deletion for the final physical delete after the ap
 The app must never leave broken stored references.
 
 ---
-
 # 45. Entering Existing Fiction Lab Content
 
 The Companion may be used with content that already exists in Fiction Lab, but it does not connect to or import directly from the platform.
@@ -4285,7 +4207,6 @@ Out of scope for v1:
 Structured import may be reconsidered in a later phase only if a concrete workflow justifies it.
 
 ---
-
 # 45A. Scenario Library
 
 The Scenario Library is the dedicated home screen of the Fiction Lab Scenario Companion.
@@ -4330,7 +4251,8 @@ Search at minimum:
 
 - Scenario Name;
 - Scenario Description;
-- Scenario Tags & Genres.
+- Scenario Tags & Genres;
+- Fiction Lab Target Plan.
 
 Full Lore content search belongs inside the Scenario Workspace rather than the Library.
 
@@ -4432,6 +4354,7 @@ Section 49A is the canonical detailed accessibility and keyboard specification.
 
 ---
 
+
 # 46A. Modern Accessibility-First Desktop UI
 
 The Fiction Lab Scenario Companion must use a modern, intuitive and user-friendly desktop interface rather than a dense traditional desktop layout.
@@ -4459,7 +4382,6 @@ Core principles:
 Accessibility is a product requirement from the beginning, not a later optional theme.
 
 The UI should be designed with:
-
 - autism-friendly predictability and consistency;
 - dyslexia-conscious readability;
 - low cognitive load;
@@ -4468,9 +4390,7 @@ The UI should be designed with:
 ## Proposed information architecture
 
 ### Scenario Library
-
 A dedicated modern library screen with:
-
 - scenario cover;
 - scenario name;
 - short description or useful summary;
@@ -4481,11 +4401,9 @@ A dedicated modern library screen with:
 Avoid a permanently visible global scenario list while editing a Scenario.
 
 ### Scenario Workspace
-
 Use a modern workspace structure rather than a rigid legacy three-pane desktop interface.
 
 Suggested primary navigation:
-
 - Overview
 - Story
 - Lore
@@ -4498,9 +4416,7 @@ The central workspace displays one main task/context at a time.
 Secondary properties, validation, metadata and advanced controls should open contextually in a drawer, inspector or dedicated view when needed.
 
 ### Lore editing
-
 A Lore Card should provide a spacious editor with clearly named sections/tabs such as:
-
 - Content
 - Visual
 - Connections
@@ -4509,9 +4425,7 @@ A Lore Card should provide a spacious editor with clearly named sections/tabs su
 Reader Mode and Edit Mode remain distinct.
 
 ### Status feedback
-
 A lightweight status area may show information such as:
-
 - save state;
 - number of Lore Cards;
 - tag usage;
@@ -4613,11 +4527,9 @@ Recommended tabs:
 - **Details**
 
 ### Content
-
 Contains the main Fiction Lab card fields, including Traits when the Type is Character.
 
 ### Visual
-
 Contains:
 
 - final VISUAL CANON image;
@@ -4626,7 +4538,6 @@ Contains:
 - relevant image metadata.
 
 ### Connections
-
 Contains:
 
 - outgoing Linked Pieces;
@@ -4637,7 +4548,6 @@ Contains:
 Direction must always remain explicit as `ORIGIN → DESTINATION`.
 
 ### Details
-
 Contains operational metadata such as:
 
 - Type;
@@ -6007,41 +5917,33 @@ Normal cards should rely primarily on surface contrast and subtle borders rather
 v1 uses four primary button roles:
 
 ### Primary
-
 Main action for the current context.
 
 Examples:
-
 - Create Scenario
 - Create Backup
 - Export
 
 ### Secondary
-
 Supporting action.
 
 Examples:
-
 - Preview
 - Replace Image
 - Open Lore
 
 ### Ghost
-
 Low-emphasis action.
 
 Examples:
-
 - Cancel
 - Open Folder
 - View Details
 
 ### Destructive
-
 Reserved for truly destructive actions.
 
 Example:
-
 - Delete Permanently
 
 Avoid introducing many stylistic button variants.
@@ -6245,15 +6147,12 @@ Target Windows desktop layouts.
 Suggested breakpoints:
 
 ### Wide
-
 `≥ 1440px`
 
 ### Standard
-
 `1024–1439px`
 
 ### Narrow desktop
-
 `800–1023px`
 
 Recommended comfortable minimum:
@@ -6772,11 +6671,9 @@ An interrupted temporary archive is not shown as a valid backup.
 Restore uses staging and commit boundaries.
 
 Before commit:
-
 - current Scenario remains unchanged.
 
 During Replace Existing:
-
 - pre-restore safety snapshot already exists;
 - if commit fails, use rollback/recovery workflow rather than silently mixing versions.
 
@@ -6785,7 +6682,6 @@ During Replace Existing:
 No merge.
 
 Offer:
-
 - Restore as Copy;
 - Replace Existing.
 
@@ -6958,7 +6854,6 @@ Use progressive disclosure and separate Editor / Reader modes.
 # 55. Decision Register
 
 Resolved:
-
 - **Technical architecture:** Tauri 2 + React + TypeScript + Vite + SQLite with Rust-owned domain/filesystem boundary.
 - **State architecture:** query-cache for persistent data; small separate ephemeral UI state.
 - **Storage authority:** SQLite database is authoritative; `scenario.json` is a managed mirror.
@@ -7061,6 +6956,7 @@ Open implementation-blocking product decisions:
 
 # 56. Finalized Implementation Decisions for v1
 
+
 The principal v1 product and architecture decisions are now resolved.
 
 Finalized implementation direction:
@@ -7111,7 +7007,6 @@ This section is the concise decision baseline for implementation. Any future beh
 Wireframes may be created during the implementation-design pass, but a separate exhaustive wireframe phase is not required before initializing the codebase because the screen-level behaviour is already extensively specified in this PRD.
 
 ---
-
 # 58. Definition of Done for Planning Phase
 
 The planning criteria are now satisfied:
@@ -7136,14 +7031,13 @@ The planning criteria are now satisfied:
 Implementation may continue from this v3.1 Implementation-Ready baseline.
 
 ---
-
 # 59. Current Project Position
 
 **Current phase:** Implementation-ready.
 
 **PRD baseline:** v3.1 IMPLEMENTATION-READY.
 
-**Code status:** Implementation is in progress. The Scenario Library, Scenario creation flow, routed Scenario Workspace, SQLite-backed Overview, persisted Story fields, Story tabs, autosave and live character counts are implemented.
+**Code status:** Implementation has not started.
 
 **Major product decisions:** Resolved.
 
@@ -7151,7 +7045,8 @@ Implementation may continue from this v3.1 Implementation-Ready baseline.
 
 **Latest product requirement added in v3.1:** per-Scenario Fiction Lab Target Plan (Free / Plus / Ultra) with plan-aware centralized platform limits.
 
-**Next project action:** add per-Scenario Fiction Lab Target Plan persistence and introduce the centralized plan-aware platform-limit configuration before enforcing Story character limits.
+**Next project action:** freeze migration `001`, the v1 backup JSON schema and `ExportDocumentModel`, then initialize the Tauri + React + TypeScript codebase according to Section 57.
+
 
 # Appendix A — Official Fiction Lab Scenario Tags & Genres
 
@@ -7391,6 +7286,7 @@ The application must preserve these labels exactly and allow a maximum of 5 sele
 - AI Assistant
 - Realistic
 - Cold War
+
 
 ## Resolved Export Scope
 
