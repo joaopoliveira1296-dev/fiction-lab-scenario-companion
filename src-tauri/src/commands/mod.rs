@@ -22,6 +22,7 @@ pub struct ScenarioSummary {
     pub name: String,
     pub description: String,
     pub status: String,
+    pub fiction_lab_plan: String,
     pub tags: Vec<String>,
     pub created_at: String,
     pub updated_at: String,
@@ -137,6 +138,7 @@ pub async fn create_scenario(
         name,
         description,
         status,
+        fiction_lab_plan: "FREE".to_string(),
         tags: input.tags,
         created_at: now.clone(),
         updated_at: now,
@@ -147,15 +149,16 @@ pub async fn create_scenario(
 pub async fn list_scenarios(
     state: State<'_, Arc<AppState>>,
 ) -> Result<Vec<ScenarioSummary>, String> {
-    let rows = sqlx::query_as::<_, (String, String, String, String, String, String)>(
+    let rows = sqlx::query_as::<_, (String, String, String, String, String, String, String)>(
         r#"
-        SELECT
-            id,
-            name,
-            description,
-            status,
-            created_at,
-            updated_at
+       SELECT
+    id,
+    name,
+    description,
+    status,
+    fiction_lab_plan,
+    created_at,
+    updated_at
         FROM scenarios
         WHERE is_trashed = 0
         ORDER BY updated_at DESC
@@ -167,7 +170,7 @@ pub async fn list_scenarios(
 
     let mut scenarios = Vec::with_capacity(rows.len());
 
-    for (id, name, description, status, created_at, updated_at) in rows {
+    for (id, name, description, status, fiction_lab_plan, created_at, updated_at) in rows {
         let tags = sqlx::query_scalar::<_, String>(
             r#"
             SELECT value
@@ -186,6 +189,7 @@ pub async fn list_scenarios(
             name,
             description,
             status,
+            fiction_lab_plan,
             tags,
             created_at,
             updated_at,
@@ -200,15 +204,16 @@ pub async fn get_scenario(
     state: State<'_, Arc<AppState>>,
     scenario_id: String,
 ) -> Result<ScenarioSummary, String> {
-    let row = sqlx::query_as::<_, (String, String, String, String, String, String)>(
+    let row = sqlx::query_as::<_, (String, String, String, String, String, String, String)>(
         r#"
         SELECT
-            id,
-            name,
-            description,
-            status,
-            created_at,
-            updated_at
+    id,
+    name,
+    description,
+    status,
+    fiction_lab_plan,
+    created_at,
+    updated_at
         FROM scenarios
         WHERE id = ?
           AND is_trashed = 0
@@ -238,9 +243,10 @@ pub async fn get_scenario(
         name: row.1,
         description: row.2,
         status: row.3,
+        fiction_lab_plan: row.4,
         tags,
-        created_at: row.4,
-        updated_at: row.5,
+        created_at: row.5,
+        updated_at: row.6,
     })
 }
 
