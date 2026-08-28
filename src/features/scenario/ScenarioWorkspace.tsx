@@ -197,13 +197,6 @@ export function ScenarioWorkspace() {
           },
         );
 
-        const limits = await invoke<ScenarioStoryLimits>(
-          "get_scenario_story_limits",
-          {
-            scenarioId,
-          },
-        );
-
         setBackstoryDraft(storyResult.backstory);
         setSavedBackstory(storyResult.backstory);
         setGreetingDraft(storyResult.greeting);
@@ -212,8 +205,6 @@ export function ScenarioWorkspace() {
         setSavedCustomInstructions(storyResult.customInstructions);
 
         setStoryLimits(storyLimitsResult);
-        setOverview(overviewResult);
-
         setOverview(overviewResult);
       } catch (error) {
         setLoadError(
