@@ -847,7 +847,9 @@ export function ScenarioWorkspace() {
                           <h3>{card.title}</h3>
                         </div>
 
-                        {card.pinned && <span>Pinned</span>}
+                        {card.pinned && (
+                          <span className="lore-pinned-badge">Pinned</span>
+                        )}
                       </div>
 
                       {card.description && <p>{card.description}</p>}
@@ -855,8 +857,12 @@ export function ScenarioWorkspace() {
                       <div className="lore-list-card-meta">
                         <span>{card.internalCategory}</span>
                         <span>{card.weight}</span>
-                        <span>{card.textCanonStatus}</span>
-                        <span>{card.visualCanonStatus}</span>
+                        <span className="lore-text-status">
+                          {card.textCanonStatus}
+                        </span>
+                        <span className="lore-visual-status">
+                          {card.visualCanonStatus}
+                        </span>
                       </div>
                     </article>
                   ))}
