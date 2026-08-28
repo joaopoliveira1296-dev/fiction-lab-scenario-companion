@@ -84,6 +84,10 @@ const WORKSPACE_SECTIONS: {
   },
 ];
 
+function countCharacters(text: string): number {
+  return Array.from(text).length;
+}
+
 export function ScenarioWorkspace() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -135,6 +139,12 @@ export function ScenarioWorkspace() {
   const greetingLimit = activeFictionLabProfile?.story.greeting ?? null;
   const customInstructionsLimit =
     activeFictionLabProfile?.story.customInstructions ?? null;
+
+  const backstoryCharacterCount = countCharacters(backstoryDraft);
+  const greetingCharacterCount = countCharacters(greetingDraft);
+  const customInstructionsCharacterCount = countCharacters(
+    customInstructionsDraft,
+  );
   useEffect(() => {
     async function loadScenario() {
       if (!scenarioId) {
@@ -599,14 +609,14 @@ export function ScenarioWorkspace() {
                   <div
                     className={
                       backstoryLimit !== null &&
-                      backstoryDraft.length > backstoryLimit
+                      backstoryCharacterCount > backstoryLimit
                         ? "story-character-count story-character-count-over-limit"
                         : "story-character-count"
                     }
                   >
                     {backstoryLimit === null
-                      ? `${backstoryDraft.length} characters`
-                      : `${backstoryDraft.length} / ${backstoryLimit} characters`}
+                      ? `${backstoryCharacterCount} characters`
+                      : `${backstoryCharacterCount} / ${backstoryLimit} characters`}
                   </div>
                 </div>
               )}
@@ -657,14 +667,14 @@ export function ScenarioWorkspace() {
                   <div
                     className={
                       greetingLimit !== null &&
-                      greetingDraft.length > greetingLimit
+                      greetingCharacterCount > greetingLimit
                         ? "story-character-count story-character-count-over-limit"
                         : "story-character-count"
                     }
                   >
                     {greetingLimit === null
-                      ? `${greetingDraft.length} characters`
-                      : `${greetingDraft.length} / ${greetingLimit} characters`}
+                      ? `${greetingCharacterCount} characters`
+                      : `${greetingCharacterCount} / ${greetingLimit} characters`}
                   </div>
                 </div>
               )}
@@ -718,14 +728,14 @@ export function ScenarioWorkspace() {
                   <div
                     className={
                       customInstructionsLimit !== null &&
-                      customInstructionsDraft.length > customInstructionsLimit
+                      customInstructionsCharacterCount > customInstructionsLimit
                         ? "story-character-count story-character-count-over-limit"
                         : "story-character-count"
                     }
                   >
                     {customInstructionsLimit === null
-                      ? `${customInstructionsDraft.length} characters`
-                      : `${customInstructionsDraft.length} / ${customInstructionsLimit} characters`}
+                      ? `${customInstructionsCharacterCount} characters`
+                      : `${customInstructionsCharacterCount} / ${customInstructionsLimit} characters`}
                   </div>
                 </div>
               )}
