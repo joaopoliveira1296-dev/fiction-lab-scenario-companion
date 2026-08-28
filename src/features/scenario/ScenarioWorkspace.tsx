@@ -116,11 +116,14 @@ export function ScenarioWorkspace() {
 
   const [backstoryDraft, setBackstoryDraft] = useState("");
   const [savedBackstory, setSavedBackstory] = useState("");
+  const [isSavingBackstory, setIsSavingBackstory] = useState(false);
+
   const [greetingDraft, setGreetingDraft] = useState("");
   const [savedGreeting, setSavedGreeting] = useState("");
+  const [isSavingGreeting, setIsSavingGreeting] = useState(false);
+
   const [customInstructionsDraft, setCustomInstructionsDraft] = useState("");
   const [savedCustomInstructions, setSavedCustomInstructions] = useState("");
-  const [isSavingGreeting, setIsSavingGreeting] = useState(false);
   const [isSavingCustomInstructions, setIsSavingCustomInstructions] =
     useState(false);
 
@@ -138,7 +141,6 @@ export function ScenarioWorkspace() {
   const [customInstructionsSaveError, setCustomInstructionsSaveError] =
     useState<string | null>(null);
 
-  const [isSavingBackstory, setIsSavingBackstory] = useState(false);
   const [backstorySaveStatus, setBackstorySaveStatus] = useState<
     "idle" | "saved" | "error"
   >("idle");
