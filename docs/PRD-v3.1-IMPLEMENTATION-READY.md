@@ -4251,8 +4251,7 @@ Search at minimum:
 
 - Scenario Name;
 - Scenario Description;
-- Scenario Tags & Genres;
-- Fiction Lab Target Plan.
+- Scenario Tags & Genres.
 
 Full Lore content search belongs inside the Scenario Workspace rather than the Library.
 
@@ -7037,7 +7036,7 @@ Implementation may continue from this v3.1 Implementation-Ready baseline.
 
 **PRD baseline:** v3.1 IMPLEMENTATION-READY.
 
-**Code status:** Implementation has not started.
+**Code status:** Implementation is in progress. The Scenario Library, Scenario creation flow, routed Scenario Workspace, SQLite-backed Overview, persisted Story fields, Story tabs, autosave and live character counts are implemented.
 
 **Major product decisions:** Resolved.
 
@@ -7045,7 +7044,7 @@ Implementation may continue from this v3.1 Implementation-Ready baseline.
 
 **Latest product requirement added in v3.1:** per-Scenario Fiction Lab Target Plan (Free / Plus / Ultra) with plan-aware centralized platform limits.
 
-**Next project action:** freeze migration `001`, the v1 backup JSON schema and `ExportDocumentModel`, then initialize the Tauri + React + TypeScript codebase according to Section 57.
+**Next project action:** add per-Scenario Fiction Lab Target Plan persistence and introduce the centralized plan-aware platform-limit configuration before enforcing Story character limits.
 
 
 # Appendix A — Official Fiction Lab Scenario Tags & Genres
