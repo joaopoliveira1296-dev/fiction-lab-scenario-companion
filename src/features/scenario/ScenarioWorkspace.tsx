@@ -532,6 +532,9 @@ export function ScenarioWorkspace() {
                     }}
                     placeholder="No Backstory yet."
                   />
+                  <div className="story-character-count">
+                    {backstoryDraft.length} characters
+                  </div>
                 </div>
               )}
 
@@ -578,6 +581,9 @@ export function ScenarioWorkspace() {
                     }}
                     placeholder="No Greeting yet."
                   />
+                  <div className="story-character-count">
+                    {greetingDraft.length} characters
+                  </div>
                 </div>
               )}
 
@@ -627,6 +633,9 @@ export function ScenarioWorkspace() {
                     }}
                     placeholder="No Custom Scenario Instructions yet."
                   />
+                  <div className="story-character-count">
+                    {customInstructionsDraft.length} characters
+                  </div>
                 </div>
               )}
             </section>

@@ -1379,6 +1379,13 @@ select:hover {
   resize: vertical;
 }
 
+.story-character-count {
+  margin-top: 8px;
+  color: #879492;
+  font-size: 13px;
+  text-align: right;
+}
+
 .story-textarea::placeholder {
   color: #879492;
 }
