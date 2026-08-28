@@ -1304,6 +1304,34 @@ select:hover {
   }
 }
 
+.story-field-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.story-field-tab {
+  padding: 8px 12px;
+  border: 1px solid #465351;
+  border-radius: 8px;
+  background: #1d2424;
+  color: #b5c0be;
+  font: inherit;
+  cursor: pointer;
+}
+
+.story-field-tab:hover {
+  border-color: #5a6967;
+  color: #eef2f1;
+}
+
+.story-field-tab-active {
+  border-color: #4d8e91;
+  background: #223333;
+  color: #eef2f1;
+}
+
 .story-field-card {
   padding: 20px 22px;
 

@@ -89,6 +89,10 @@ export function ScenarioWorkspace() {
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const [overview, setOverview] = useState<ScenarioOverview | null>(null);
+  const [activeStoryField, setActiveStoryField] = useState<
+    "backstory" | "greeting" | "customInstructions"
+  >("backstory");
+
   const [backstoryDraft, setBackstoryDraft] = useState("");
   const [savedBackstory, setSavedBackstory] = useState("");
   const [greetingDraft, setGreetingDraft] = useState("");
@@ -165,6 +169,48 @@ export function ScenarioWorkspace() {
 
     void loadScenario();
   }, [scenarioId]);
+
+  useEffect(() => {
+    if (backstoryDraft === savedBackstory) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      void saveBackstory();
+    }, 800);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [backstoryDraft, savedBackstory]);
+
+  useEffect(() => {
+    if (greetingDraft === savedGreeting) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      void saveGreeting();
+    }, 800);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [greetingDraft, savedGreeting]);
+
+  useEffect(() => {
+    if (customInstructionsDraft === savedCustomInstructions) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      void saveCustomInstructions();
+    }, 800);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [customInstructionsDraft, savedCustomInstructions]);
 
   async function saveBackstory() {
     if (!scenarioId) {
@@ -404,138 +450,185 @@ export function ScenarioWorkspace() {
                 </div>
               </div>
 
-              <div className="story-field-card">
-                <div className="story-field-header">
-                  <h2>Backstory / World Details</h2>
+              <div className="story-field-tabs">
+                <button
+                  type="button"
+                  className={
+                    activeStoryField === "backstory"
+                      ? "story-field-tab story-field-tab-active"
+                      : "story-field-tab"
+                  }
+                  aria-pressed={activeStoryField === "backstory"}
+                  onClick={() => setActiveStoryField("backstory")}
+                >
+                  Backstory / World Details
+                </button>
 
-                  <div className="story-field-actions">
-                    <button
-                      type="button"
-                      className="button button-secondary"
-                      onClick={() => void saveBackstory()}
-                      disabled={
-                        isSavingBackstory || backstoryDraft === savedBackstory
-                      }
-                    >
-                      {isSavingBackstory ? "Saving..." : "Save Backstory"}
-                    </button>
+                <button
+                  type="button"
+                  className={
+                    activeStoryField === "greeting"
+                      ? "story-field-tab story-field-tab-active"
+                      : "story-field-tab"
+                  }
+                  aria-pressed={activeStoryField === "customInstructions"}
+                  onClick={() => setActiveStoryField("greeting")}
+                >
+                  Greeting
+                </button>
 
-                    {backstorySaveStatus === "saved" && (
-                      <span className="story-save-status">Saved</span>
-                    )}
+                <button
+                  type="button"
+                  className={
+                    activeStoryField === "customInstructions"
+                      ? "story-field-tab story-field-tab-active"
+                      : "story-field-tab"
+                  }
+                  aria-pressed={activeStoryField === "greeting"}
+                  onClick={() => setActiveStoryField("customInstructions")}
+                >
+                  Custom Scenario Instructions
+                </button>
+              </div>
+              {activeStoryField === "backstory" && (
+                <div className="story-field-card">
+                  <div className="story-field-header">
+                    <h2>Backstory / World Details</h2>
 
-                    {backstoryDraft !== savedBackstory &&
-                      backstorySaveStatus !== "error" && (
-                        <span className="story-save-status">Unsaved</span>
+                    <div className="story-field-actions">
+                      <button
+                        type="button"
+                        className="button button-secondary"
+                        onClick={() => void saveBackstory()}
+                        disabled={
+                          isSavingBackstory || backstoryDraft === savedBackstory
+                        }
+                      >
+                        {isSavingBackstory ? "Saving..." : "Save Backstory"}
+                      </button>
+
+                      {backstorySaveStatus === "saved" && (
+                        <span className="story-save-status">Saved</span>
                       )}
 
-                    {backstorySaveStatus === "error" && (
-                      <span className="story-save-status story-save-status-error">
-                        Could not save
-                      </span>
-                    )}
+                      {backstoryDraft !== savedBackstory &&
+                        backstorySaveStatus !== "error" && (
+                          <span className="story-save-status">Unsaved</span>
+                        )}
+
+                      {backstorySaveStatus === "error" && (
+                        <span className="story-save-status story-save-status-error">
+                          Could not save
+                        </span>
+                      )}
+                    </div>
                   </div>
+                  <textarea
+                    className="story-textarea"
+                    value={backstoryDraft}
+                    onChange={(event) => {
+                      setBackstoryDraft(event.target.value);
+                      setBackstorySaveStatus("idle");
+                    }}
+                    placeholder="No Backstory yet."
+                  />
                 </div>
-                <textarea
-                  className="story-textarea"
-                  value={backstoryDraft}
-                  onChange={(event) => {
-                    setBackstoryDraft(event.target.value);
-                    setBackstorySaveStatus("idle");
-                  }}
-                  placeholder="No Backstory yet."
-                />
-              </div>
+              )}
 
-              <div className="story-field-card">
-                <div className="story-field-header">
-                  <h2>Greeting</h2>
+              {activeStoryField === "greeting" && (
+                <div className="story-field-card">
+                  <div className="story-field-header">
+                    <h2>Greeting</h2>
 
-                  <div className="story-field-actions">
-                    <button
-                      type="button"
-                      className="button button-secondary"
-                      onClick={() => void saveGreeting()}
-                      disabled={
-                        isSavingGreeting || greetingDraft === savedGreeting
-                      }
-                    >
-                      {isSavingGreeting ? "Saving..." : "Save Greeting"}
-                    </button>
+                    <div className="story-field-actions">
+                      <button
+                        type="button"
+                        className="button button-secondary"
+                        onClick={() => void saveGreeting()}
+                        disabled={
+                          isSavingGreeting || greetingDraft === savedGreeting
+                        }
+                      >
+                        {isSavingGreeting ? "Saving..." : "Save Greeting"}
+                      </button>
 
-                    {greetingSaveStatus === "saved" && (
-                      <span className="story-save-status">Saved</span>
-                    )}
-
-                    {greetingDraft !== savedGreeting &&
-                      greetingSaveStatus !== "error" && (
-                        <span className="story-save-status">Unsaved</span>
+                      {greetingSaveStatus === "saved" && (
+                        <span className="story-save-status">Saved</span>
                       )}
 
-                    {greetingSaveStatus === "error" && (
-                      <span className="story-save-status story-save-status-error">
-                        Could not save
-                      </span>
-                    )}
+                      {greetingDraft !== savedGreeting &&
+                        greetingSaveStatus !== "error" && (
+                          <span className="story-save-status">Unsaved</span>
+                        )}
+
+                      {greetingSaveStatus === "error" && (
+                        <span className="story-save-status story-save-status-error">
+                          Could not save
+                        </span>
+                      )}
+                    </div>
                   </div>
+
+                  <textarea
+                    className="story-textarea"
+                    value={greetingDraft}
+                    onChange={(event) => {
+                      setGreetingDraft(event.target.value);
+                      setGreetingSaveStatus("idle");
+                    }}
+                    placeholder="No Greeting yet."
+                  />
                 </div>
+              )}
 
-                <textarea
-                  className="story-textarea"
-                  value={greetingDraft}
-                  onChange={(event) => {
-                    setGreetingDraft(event.target.value);
-                    setGreetingSaveStatus("idle");
-                  }}
-                  placeholder="No Greeting yet."
-                />
-              </div>
-              <div className="story-field-card">
-                <div className="story-field-header">
-                  <h2>Custom Scenario Instructions</h2>
+              {activeStoryField === "customInstructions" && (
+                <div className="story-field-card">
+                  <div className="story-field-header">
+                    <h2>Custom Scenario Instructions</h2>
 
-                  <div className="story-field-actions">
-                    <button
-                      type="button"
-                      className="button button-secondary"
-                      onClick={() => void saveCustomInstructions()}
-                      disabled={
-                        isSavingCustomInstructions ||
-                        customInstructionsDraft === savedCustomInstructions
-                      }
-                    >
-                      {isSavingCustomInstructions
-                        ? "Saving..."
-                        : "Save Custom Instructions"}
-                    </button>
+                    <div className="story-field-actions">
+                      <button
+                        type="button"
+                        className="button button-secondary"
+                        onClick={() => void saveCustomInstructions()}
+                        disabled={
+                          isSavingCustomInstructions ||
+                          customInstructionsDraft === savedCustomInstructions
+                        }
+                      >
+                        {isSavingCustomInstructions
+                          ? "Saving..."
+                          : "Save Custom Instructions"}
+                      </button>
 
-                    {customInstructionsSaveStatus === "saved" && (
-                      <span className="story-save-status">Saved</span>
-                    )}
-
-                    {customInstructionsDraft !== savedCustomInstructions &&
-                      customInstructionsSaveStatus !== "error" && (
-                        <span className="story-save-status">Unsaved</span>
+                      {customInstructionsSaveStatus === "saved" && (
+                        <span className="story-save-status">Saved</span>
                       )}
 
-                    {customInstructionsSaveStatus === "error" && (
-                      <span className="story-save-status story-save-status-error">
-                        Could not save
-                      </span>
-                    )}
-                  </div>
-                </div>
+                      {customInstructionsDraft !== savedCustomInstructions &&
+                        customInstructionsSaveStatus !== "error" && (
+                          <span className="story-save-status">Unsaved</span>
+                        )}
 
-                <textarea
-                  className="story-textarea"
-                  value={customInstructionsDraft}
-                  onChange={(event) => {
-                    setCustomInstructionsDraft(event.target.value);
-                    setCustomInstructionsSaveStatus("idle");
-                  }}
-                  placeholder="No Custom Scenario Instructions yet."
-                />
-              </div>
+                      {customInstructionsSaveStatus === "error" && (
+                        <span className="story-save-status story-save-status-error">
+                          Could not save
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <textarea
+                    className="story-textarea"
+                    value={customInstructionsDraft}
+                    onChange={(event) => {
+                      setCustomInstructionsDraft(event.target.value);
+                      setCustomInstructionsSaveStatus("idle");
+                    }}
+                    placeholder="No Custom Scenario Instructions yet."
+                  />
+                </div>
+              )}
             </section>
           )}
           {activeSection === "lore" && (
