@@ -28,6 +28,12 @@ interface ScenarioOverview {
   visualCanonCount: number;
 }
 
+interface ScenarioStory {
+  backstory: string;
+  greeting: string;
+  customInstructions: string;
+}
+
 type WorkspaceSection =
   | "overview"
   | "story"
@@ -83,7 +89,25 @@ export function ScenarioWorkspace() {
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const [overview, setOverview] = useState<ScenarioOverview | null>(null);
+  const [story, setStory] = useState<ScenarioStory | null>(null);
+  const [backstoryDraft, setBackstoryDraft] = useState("");
+  const [greetingDraft, setGreetingDraft] = useState("");
+  const [customInstructionsDraft, setCustomInstructionsDraft] = useState("");
+  const [isSavingGreeting, setIsSavingGreeting] = useState(false);
+  const [isSavingCustomInstructions, setIsSavingCustomInstructions] =
+    useState(false);
 
+  const [greetingSaveStatus, setGreetingSaveStatus] = useState<
+    "idle" | "saved" | "error"
+  >("idle");
+
+  const [customInstructionsSaveStatus, setCustomInstructionsSaveStatus] =
+    useState<"idle" | "saved" | "error">("idle");
+
+  const [isSavingBackstory, setIsSavingBackstory] = useState(false);
+  const [backstorySaveStatus, setBackstorySaveStatus] = useState<
+    "idle" | "saved" | "error"
+  >("idle");
   const activeSection: WorkspaceSection = WORKSPACE_SECTIONS.some(
     (item) => item.id === section,
   )
@@ -115,6 +139,15 @@ export function ScenarioWorkspace() {
           },
         );
 
+        const storyResult = await invoke<ScenarioStory>("get_scenario_story", {
+          scenarioId,
+        });
+
+        setStory(storyResult);
+        setBackstoryDraft(storyResult.backstory);
+        setGreetingDraft(storyResult.greeting);
+        setCustomInstructionsDraft(storyResult.customInstructions);
+
         setOverview(overviewResult);
       } catch (error) {
         setLoadError(
@@ -127,6 +160,81 @@ export function ScenarioWorkspace() {
 
     void loadScenario();
   }, [scenarioId]);
+
+  async function saveBackstory() {
+    if (!scenarioId) {
+      return;
+    }
+
+    setIsSavingBackstory(true);
+    setBackstorySaveStatus("idle");
+
+    try {
+      await invoke("update_scenario_backstory", {
+        input: {
+          scenarioId,
+          backstory: backstoryDraft,
+        },
+      });
+
+      setBackstorySaveStatus("saved");
+    } catch (error) {
+      console.error("Could not save Backstory:", error);
+      setBackstorySaveStatus("error");
+    } finally {
+      setIsSavingBackstory(false);
+    }
+  }
+
+  async function saveGreeting() {
+    if (!scenarioId) {
+      return;
+    }
+
+    setIsSavingGreeting(true);
+    setGreetingSaveStatus("idle");
+
+    try {
+      await invoke("update_scenario_greeting", {
+        input: {
+          scenarioId,
+          greeting: greetingDraft,
+        },
+      });
+
+      setGreetingSaveStatus("saved");
+    } catch (error) {
+      console.error("Could not save Greeting:", error);
+      setGreetingSaveStatus("error");
+    } finally {
+      setIsSavingGreeting(false);
+    }
+  }
+
+  async function saveCustomInstructions() {
+    if (!scenarioId) {
+      return;
+    }
+
+    setIsSavingCustomInstructions(true);
+    setCustomInstructionsSaveStatus("idle");
+
+    try {
+      await invoke("update_scenario_custom_instructions", {
+        input: {
+          scenarioId,
+          customInstructions: customInstructionsDraft,
+        },
+      });
+
+      setCustomInstructionsSaveStatus("saved");
+    } catch (error) {
+      console.error("Could not save Custom Scenario Instructions:", error);
+      setCustomInstructionsSaveStatus("error");
+    } finally {
+      setIsSavingCustomInstructions(false);
+    }
+  }
 
   if (isLoading) {
     return (
@@ -271,12 +379,126 @@ export function ScenarioWorkspace() {
           )}
 
           {activeSection === "story" && (
-            <WorkspacePlaceholder
-              title="Story"
-              text="Backstory, Greeting and Custom Scenario Instructions will live here."
-            />
-          )}
+            <section className="workspace-section">
+              <div className="workspace-section-header">
+                <div>
+                  <p className="workspace-eyebrow">Scenario Workspace</p>
+                  <h1>Story</h1>
+                </div>
+              </div>
 
+              <div className="story-field-card">
+                <div className="story-field-header">
+                  <h2>Backstory / World Details</h2>
+
+                  <div className="story-field-actions">
+                    <button
+                      type="button"
+                      className="button button-secondary"
+                      onClick={() => void saveBackstory()}
+                      disabled={isSavingBackstory}
+                    >
+                      {isSavingBackstory ? "Saving..." : "Save Backstory"}
+                    </button>
+
+                    {backstorySaveStatus === "saved" && (
+                      <span className="story-save-status">Saved</span>
+                    )}
+
+                    {backstorySaveStatus === "error" && (
+                      <span className="story-save-status story-save-status-error">
+                        Could not save
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <textarea
+                  className="story-textarea"
+                  value={backstoryDraft}
+                  onChange={(event) => {
+                    setBackstoryDraft(event.target.value);
+                    setBackstorySaveStatus("idle");
+                  }}
+                  placeholder="No Backstory yet."
+                />
+              </div>
+
+              <div className="story-field-card">
+                <div className="story-field-header">
+                  <h2>Greeting</h2>
+
+                  <div className="story-field-actions">
+                    <button
+                      type="button"
+                      className="button button-secondary"
+                      onClick={() => void saveGreeting()}
+                      disabled={isSavingGreeting}
+                    >
+                      {isSavingGreeting ? "Saving..." : "Save Greeting"}
+                    </button>
+
+                    {greetingSaveStatus === "saved" && (
+                      <span className="story-save-status">Saved</span>
+                    )}
+
+                    {greetingSaveStatus === "error" && (
+                      <span className="story-save-status story-save-status-error">
+                        Could not save
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <textarea
+                  className="story-textarea"
+                  value={greetingDraft}
+                  onChange={(event) => {
+                    setGreetingDraft(event.target.value);
+                    setGreetingSaveStatus("idle");
+                  }}
+                  placeholder="No Greeting yet."
+                />
+              </div>
+              <div className="story-field-card">
+                <div className="story-field-header">
+                  <h2>Custom Scenario Instructions</h2>
+
+                  <div className="story-field-actions">
+                    <button
+                      type="button"
+                      className="button button-secondary"
+                      onClick={() => void saveCustomInstructions()}
+                      disabled={isSavingCustomInstructions}
+                    >
+                      {isSavingCustomInstructions
+                        ? "Saving..."
+                        : "Save Custom Instructions"}
+                    </button>
+
+                    {customInstructionsSaveStatus === "saved" && (
+                      <span className="story-save-status">Saved</span>
+                    )}
+
+                    {customInstructionsSaveStatus === "error" && (
+                      <span className="story-save-status story-save-status-error">
+                        Could not save
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <textarea
+                  className="story-textarea"
+                  value={customInstructionsDraft}
+                  onChange={(event) => {
+                    setCustomInstructionsDraft(event.target.value);
+                    setCustomInstructionsSaveStatus("idle");
+                  }}
+                  placeholder="No Custom Scenario Instructions yet."
+                />
+              </div>
+            </section>
+          )}
           {activeSection === "lore" && (
             <WorkspacePlaceholder
               title="Lore"

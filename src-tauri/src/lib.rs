@@ -24,6 +24,10 @@ pub fn run() {
             commands::list_scenarios,
             commands::get_scenario,
             commands::get_scenario_overview,
+            commands::get_scenario_story,
+            commands::update_scenario_backstory,
+            commands::update_scenario_greeting,
+            commands::update_scenario_custom_instructions,
         ])
         .setup(|app| {
             let app_data_dir = app

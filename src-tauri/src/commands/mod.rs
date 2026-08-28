@@ -246,6 +246,157 @@ pub async fn get_scenario(
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct ScenarioStory {
+    pub backstory: String,
+    pub greeting: String,
+    pub custom_instructions: String,
+}
+
+#[tauri::command]
+pub async fn get_scenario_story(
+    state: State<'_, Arc<AppState>>,
+    scenario_id: String,
+) -> Result<ScenarioStory, String> {
+    let row = sqlx::query_as::<_, (String, String, String)>(
+        r#"
+        SELECT
+            backstory,
+            greeting,
+            custom_instructions
+        FROM scenarios
+        WHERE id = ?
+          AND is_trashed = 0
+        "#,
+    )
+    .bind(&scenario_id)
+    .fetch_optional(&state.db)
+    .await
+    .map_err(|error| error.to_string())?
+    .ok_or_else(|| "Scenario not found.".to_string())?;
+
+    Ok(ScenarioStory {
+        backstory: row.0,
+        greeting: row.1,
+        custom_instructions: row.2,
+    })
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateScenarioBackstoryInput {
+    pub scenario_id: String,
+    pub backstory: String,
+}
+
+#[tauri::command]
+pub async fn update_scenario_backstory(
+    state: State<'_, Arc<AppState>>,
+    input: UpdateScenarioBackstoryInput,
+) -> Result<(), String> {
+    let now = Utc::now().to_rfc3339();
+
+    let result = sqlx::query(
+        r#"
+        UPDATE scenarios
+        SET
+            backstory = ?,
+            updated_at = ?
+        WHERE id = ?
+          AND is_trashed = 0
+        "#,
+    )
+    .bind(&input.backstory)
+    .bind(&now)
+    .bind(&input.scenario_id)
+    .execute(&state.db)
+    .await
+    .map_err(|error| error.to_string())?;
+
+    if result.rows_affected() == 0 {
+        return Err("Scenario not found.".to_string());
+    }
+
+    Ok(())
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateScenarioGreetingInput {
+    pub scenario_id: String,
+    pub greeting: String,
+}
+
+#[tauri::command]
+pub async fn update_scenario_greeting(
+    state: State<'_, Arc<AppState>>,
+    input: UpdateScenarioGreetingInput,
+) -> Result<(), String> {
+    let now = Utc::now().to_rfc3339();
+
+    let result = sqlx::query(
+        r#"
+        UPDATE scenarios
+        SET
+            greeting = ?,
+            updated_at = ?
+        WHERE id = ?
+          AND is_trashed = 0
+        "#,
+    )
+    .bind(&input.greeting)
+    .bind(&now)
+    .bind(&input.scenario_id)
+    .execute(&state.db)
+    .await
+    .map_err(|error| error.to_string())?;
+
+    if result.rows_affected() == 0 {
+        return Err("Scenario not found.".to_string());
+    }
+
+    Ok(())
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateScenarioCustomInstructionsInput {
+    pub scenario_id: String,
+    pub custom_instructions: String,
+}
+
+#[tauri::command]
+pub async fn update_scenario_custom_instructions(
+    state: State<'_, Arc<AppState>>,
+    input: UpdateScenarioCustomInstructionsInput,
+) -> Result<(), String> {
+    let now = Utc::now().to_rfc3339();
+
+    let result = sqlx::query(
+        r#"
+        UPDATE scenarios
+        SET
+            custom_instructions = ?,
+            updated_at = ?
+        WHERE id = ?
+          AND is_trashed = 0
+        "#,
+    )
+    .bind(&input.custom_instructions)
+    .bind(&now)
+    .bind(&input.scenario_id)
+    .execute(&state.db)
+    .await
+    .map_err(|error| error.to_string())?;
+
+    if result.rows_affected() == 0 {
+        return Err("Scenario not found.".to_string());
+    }
+
+    Ok(())
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ScenarioOverview {
     pub lore_count: i64,
     pub connection_count: i64,
