@@ -288,6 +288,14 @@ pub struct CreateLoreCardInput {
     pub lore_type: String,
     pub internal_category: String,
     pub title: String,
+    pub weight: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateLoreCardWeightInput {
+    pub lore_card_id: String,
+    pub weight: String,
 }
 
 async fn get_scenario_limit(
@@ -440,11 +448,12 @@ pub async fn create_lore_card(
             type,
             internal_category,
             title,
+            weight,
             display_order,
             created_at,
             updated_at
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         "#,
     )
     .bind(&id)
@@ -452,6 +461,7 @@ pub async fn create_lore_card(
     .bind(&input.lore_type)
     .bind(&input.internal_category)
     .bind(&title)
+    .bind(&input.weight)
     .bind(display_order)
     .bind(&now)
     .bind(&now)
@@ -465,12 +475,37 @@ pub async fn create_lore_card(
         internal_category: input.internal_category,
         title,
         description: String::new(),
-        weight: "STANDARD".to_string(),
+        weight: input.weight,
         pinned: false,
         text_canon_status: "DRAFT".to_string(),
         visual_canon_status: "NOT_STARTED".to_string(),
         display_order,
     })
+}
+
+#[tauri::command]
+pub async fn update_lore_card_weight(
+    state: State<'_, Arc<AppState>>,
+    input: UpdateLoreCardWeightInput,
+) -> Result<(), String> {
+    let now = Utc::now().to_rfc3339();
+
+    sqlx::query(
+        r#"
+        UPDATE lore_cards
+        SET weight = ?,
+            updated_at = ?
+        WHERE id = ?
+        "#,
+    )
+    .bind(&input.weight)
+    .bind(&now)
+    .bind(&input.lore_card_id)
+    .execute(&state.db)
+    .await
+    .map_err(|error| error.to_string())?;
+
+    Ok(())
 }
 
 #[tauri::command]

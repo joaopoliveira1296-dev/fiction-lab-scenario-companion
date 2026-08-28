@@ -126,11 +126,16 @@ export function ScenarioWorkspace() {
 
   const [overview, setOverview] = useState<ScenarioOverview | null>(null);
   const [loreCards, setLoreCards] = useState<LoreCardSummary[]>([]);
+  const [selectedLoreCardId, setSelectedLoreCardId] = useState<string | null>(
+    null,
+  );
+  const [selectedLoreWeight, setSelectedLoreWeight] = useState("STANDARD");
   const [isCreatingLoreCard, setIsCreatingLoreCard] = useState(false);
   const [newLoreType, setNewLoreType] = useState("CHARACTER");
   const [newLoreInternalCategory, setNewLoreInternalCategory] =
     useState("Other");
   const [newLoreTitle, setNewLoreTitle] = useState("");
+  const [newLoreWeight, setNewLoreWeight] = useState("STANDARD");
   const [loreCreateError, setLoreCreateError] = useState<string | null>(null);
   const [activeStoryField, setActiveStoryField] = useState<
     "backstory" | "greeting" | "customInstructions"
@@ -180,6 +185,9 @@ export function ScenarioWorkspace() {
   const customInstructionsCharacterCount = countCharacters(
     customInstructionsDraft,
   );
+  const selectedLoreCard =
+    loreCards.find((card) => card.id === selectedLoreCardId) ?? null;
+
   useEffect(() => {
     async function loadScenario() {
       if (!scenarioId) {
@@ -259,6 +267,7 @@ export function ScenarioWorkspace() {
           loreType: newLoreType,
           internalCategory: newLoreInternalCategory,
           title: newLoreTitle,
+          weight: newLoreWeight,
         },
       });
 
@@ -267,6 +276,7 @@ export function ScenarioWorkspace() {
       setNewLoreType("CHARACTER");
       setNewLoreInternalCategory("Other");
       setNewLoreTitle("");
+      setNewLoreWeight("STANDARD");
       setIsCreatingLoreCard(false);
     } catch (error) {
       setLoreCreateError(
@@ -913,7 +923,31 @@ export function ScenarioWorkspace() {
                       <option value="Other">Other</option>
                     </select>
                   </label>
+                  <div className="lore-weight-field">
+                    <span className="lore-weight-label">Weight</span>
 
+                    <div className="lore-weight-selector">
+                      {[
+                        "MINOR",
+                        "SUPPLEMENTARY",
+                        "STANDARD",
+                        "IMPORTANT",
+                        "CRITICAL",
+                      ].map((weight) => (
+                        <button
+                          key={weight}
+                          type="button"
+                          className={`lore-weight-option ${
+                            newLoreWeight === weight ? "is-selected" : ""
+                          }`}
+                          onClick={() => setNewLoreWeight(weight)}
+                        >
+                          <span className="lore-weight-dot" />
+                          <span>{weight}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                   <label>
                     Title
                     <input
@@ -949,7 +983,16 @@ export function ScenarioWorkspace() {
               ) : (
                 <div className="lore-list">
                   {loreCards.map((card) => (
-                    <article key={card.id} className="lore-list-card">
+                    <article
+                      key={card.id}
+                      className={`lore-list-card ${
+                        selectedLoreCardId === card.id ? "is-selected" : ""
+                      }`}
+                      onClick={() => {
+                        setSelectedLoreCardId(card.id);
+                        setSelectedLoreWeight(card.weight);
+                      }}
+                    >
                       <div className="lore-list-card-header">
                         <div>
                           <span>{card.loreType}</span>
@@ -975,6 +1018,87 @@ export function ScenarioWorkspace() {
                       </div>
                     </article>
                   ))}
+                </div>
+              )}
+              {selectedLoreCard && (
+                <div className="lore-editor-preview">
+                  <div className="lore-editor-preview-header">
+                    <div>
+                      <span>{selectedLoreCard.loreType}</span>
+                      <h3>{selectedLoreCard.title}</h3>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setSelectedLoreCardId(null)}
+                    >
+                      Close
+                    </button>
+                  </div>
+
+                  <dl>
+                    <div>
+                      <dt>Internal Category</dt>
+                      <dd>{selectedLoreCard.internalCategory}</dd>
+                    </div>
+
+                    <div className="lore-editor-weight">
+                      <dt>Weight</dt>
+
+                      <dd>
+                        <div className="lore-weight-selector">
+                          {[
+                            "MINOR",
+                            "SUPPLEMENTARY",
+                            "STANDARD",
+                            "IMPORTANT",
+                            "CRITICAL",
+                          ].map((weight) => (
+                            <button
+                              key={weight}
+                              type="button"
+                              className={`lore-weight-option ${
+                                selectedLoreWeight === weight
+                                  ? "is-selected"
+                                  : ""
+                              }`}
+                              onClick={() => {
+                                setSelectedLoreWeight(weight);
+
+                                void invoke("update_lore_card_weight", {
+                                  input: {
+                                    loreCardId: selectedLoreCard.id,
+                                    weight,
+                                  },
+                                }).then(() => {
+                                  setLoreCards((currentCards) =>
+                                    currentCards.map((card) =>
+                                      card.id === selectedLoreCard.id
+                                        ? { ...card, weight }
+                                        : card,
+                                    ),
+                                  );
+                                });
+                              }}
+                            >
+                              <span className="lore-weight-dot" />
+                              <span>{weight}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </dd>
+                    </div>
+
+                    <div>
+                      <dt>Text Canon Status</dt>
+                      <dd>{selectedLoreCard.textCanonStatus}</dd>
+                    </div>
+
+                    <div>
+                      <dt>Visual Canon Status</dt>
+                      <dd>{selectedLoreCard.visualCanonStatus}</dd>
+                    </div>
+                  </dl>
                 </div>
               )}
             </section>

@@ -29,6 +29,7 @@ pub fn run() {
             commands::list_lore_cards,
             commands::create_lore_card,
             commands::update_scenario_backstory,
+            commands::update_lore_card_weight,
             commands::update_scenario_greeting,
             commands::update_scenario_custom_instructions,
             commands::update_scenario_fiction_lab_plan,

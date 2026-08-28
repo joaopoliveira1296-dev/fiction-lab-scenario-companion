@@ -1208,6 +1208,14 @@ select:hover {
   font-size: 12px;
 }
 
+.lore-list-card {
+  cursor: pointer;
+}
+
+.lore-list-card.is-selected {
+  border-color: rgba(125, 211, 252, 0.5);
+}
+
 .lore-pinned-badge {
   padding: 5px 8px;
 
@@ -1261,6 +1269,160 @@ select:hover {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
+}
+
+.lore-editor-preview {
+  display: grid;
+  gap: 18px;
+
+  margin-top: 16px;
+  padding: 18px;
+
+  border: 1px solid rgba(125, 211, 252, 0.28);
+  border-radius: 12px;
+
+  background: rgba(15, 23, 42, 0.24);
+}
+
+.lore-editor-preview-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.lore-editor-preview-header span {
+  color: #7dd3fc;
+
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.lore-editor-preview-header h3 {
+  margin: 6px 0 0;
+
+  color: #eef2f1;
+
+  font-size: 20px;
+}
+
+.lore-editor-preview dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+
+  margin: 0;
+}
+
+.lore-editor-preview dl > div {
+  display: grid;
+  gap: 4px;
+
+  padding: 12px;
+
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 10px;
+}
+
+.lore-editor-preview dt {
+  color: #94a3b8;
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.lore-editor-preview dd {
+  margin: 0;
+
+  color: #eef2f1;
+}
+
+.lore-weight-field {
+  display: grid;
+  gap: 10px;
+}
+
+.lore-weight-label {
+  color: #cbd5e1;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.lore-weight-selector {
+  position: relative;
+
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0;
+
+  padding: 6px 0 0;
+}
+
+.lore-weight-selector::before {
+  content: "";
+
+  position: absolute;
+  top: 13px;
+  right: 10%;
+  left: 10%;
+
+  height: 2px;
+
+  background: rgba(148, 163, 184, 0.22);
+}
+
+.lore-weight-option {
+  position: relative;
+  z-index: 1;
+
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+
+  padding: 0;
+
+  border: 0;
+
+  background: transparent;
+
+  color: #94a3b8;
+
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.lore-weight-option:hover {
+  background: transparent;
+  color: #cbd5e1;
+}
+
+.lore-weight-dot {
+  width: 10px;
+  height: 10px;
+
+  border: 2px solid rgba(148, 163, 184, 0.5);
+  border-radius: 50%;
+
+  background: #161d1c;
+}
+
+.lore-weight-option.is-selected {
+  color: #facc15;
+}
+
+.lore-weight-option.is-selected .lore-weight-dot {
+  width: 18px;
+  height: 18px;
+
+  margin-top: -4px;
+
+  border-color: #facc15;
+
+  background: #f59e0b;
 }
 
 .workspace-empty-state strong {
