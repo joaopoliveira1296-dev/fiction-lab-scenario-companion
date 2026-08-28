@@ -45,6 +45,8 @@ interface ScenarioStoryLimits {
   customInstructions: number;
 }
 
+type SaveStatus = "idle" | "saved" | "error";
+
 type WorkspaceSection =
   | "overview"
   | "story"
@@ -127,22 +129,20 @@ export function ScenarioWorkspace() {
   const [isSavingCustomInstructions, setIsSavingCustomInstructions] =
     useState(false);
 
-  const [backstorySaveStatus, setBackstorySaveStatus] = useState<
-    "idle" | "saved" | "error"
-  >("idle");
+  const [backstorySaveStatus, setBackstorySaveStatus] =
+    useState<SaveStatus>("idle");
   const [backstorySaveError, setBackstorySaveError] = useState<string | null>(
     null,
   );
 
-  const [greetingSaveStatus, setGreetingSaveStatus] = useState<
-    "idle" | "saved" | "error"
-  >("idle");
+  const [greetingSaveStatus, setGreetingSaveStatus] =
+    useState<SaveStatus>("idle");
   const [greetingSaveError, setGreetingSaveError] = useState<string | null>(
     null,
   );
 
   const [customInstructionsSaveStatus, setCustomInstructionsSaveStatus] =
-    useState<"idle" | "saved" | "error">("idle");
+    useState<SaveStatus>("idle");
   const [customInstructionsSaveError, setCustomInstructionsSaveError] =
     useState<string | null>(null);
   const activeSection: WorkspaceSection = WORKSPACE_SECTIONS.some(
