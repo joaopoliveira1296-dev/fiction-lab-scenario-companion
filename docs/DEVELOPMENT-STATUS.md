@@ -115,3 +115,44 @@ git push
 ## Next development task
 
 After the Story checkpoint is committed, review the Story Workspace for the next small UX/data-integrity improvement before beginning another major Workspace section.
+
+## Story UX progress
+
+The Story Workspace now:
+
+- uses dedicated tabs for:
+  - Backstory / World Details;
+  - Greeting;
+  - Custom Scenario Instructions;
+- shows only one Story field as the primary editor at a time;
+- autosaves each Story field after a short idle delay;
+- keeps manual Save buttons available;
+- shows Unsaved while local edits differ from the persisted value;
+- shows Saved briefly after successful persistence;
+- disables Save when no changes exist;
+- displays live character counts for all three Story fields;
+- persists Story content directly to SQLite.
+
+## Fiction Lab Target Plan decision
+
+PRD v3.1 introduces a per-Scenario Fiction Lab Target Plan.
+
+Supported values:
+
+- Free
+- Plus
+- Ultra
+
+The selected plan will determine which centralized Fiction Lab platform-limit profile is used for character-limit display and validation.
+
+Rules:
+
+- the plan is stored per Scenario;
+- changing plan recalculates limits;
+- changing plan must never truncate or rewrite stored Scenario content;
+- Settings may later provide a default plan for newly created Scenarios;
+- existing Scenarios should default conservatively to Free when the database field is introduced.
+
+## Next development task
+
+Add Fiction Lab Target Plan to Scenario persistence and introduce the centralized plan-aware platform-limit configuration before enforcing Story character limits.

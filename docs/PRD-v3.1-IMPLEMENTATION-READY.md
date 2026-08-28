@@ -1,5 +1,5 @@
 # Fiction Lab Scenario Companion
-## Project Definition & Requirements Document — v3.0 IMPLEMENTATION-READY
+## Project Definition & Requirements Document — v3.1 IMPLEMENTATION-READY
 
 # Table of Contents
 
@@ -90,7 +90,7 @@
 
 # Implementation-Ready Baseline Note
 
-This v3.0 baseline incorporates the final consistency and redundancy audit.
+This v3.1 baseline incorporates the final consistency and redundancy audit plus the Fiction Lab plan-aware platform-limit requirement.
 
 During the audit:
 
@@ -298,11 +298,36 @@ Each Scenario should contain at minimum:
 - Backstory / World Details
 - Greeting
 - Custom Scenario Instructions
+- Fiction Lab Target Plan
 - Lore Cards
 - Connections
 - export settings
 
 `Main Details`, `Backstory / World Details`, `Greeting` and `Custom Scenario Instructions` are top-level Scenario fields, not Lore Cards.
+
+
+## Fiction Lab Target Plan
+
+Each Scenario stores a **Fiction Lab Target Plan** used to determine the applicable Fiction Lab platform limits.
+
+Supported v1 values:
+
+- `Free`
+- `Plus`
+- `Ultra`
+
+Rules:
+
+- the plan is selected manually by the user;
+- the selected plan is stored per Scenario;
+- changing the plan changes limit validation and character-limit displays, but never rewrites, truncates or deletes Scenario content;
+- changing to a more restrictive plan may cause existing fields to become over-limit and should surface validation clearly;
+- changing to a less restrictive plan should immediately recalculate the applicable limits;
+- the plan represents the Scenario's intended Fiction Lab compatibility target, not the user's authenticated Fiction Lab subscription;
+- the Companion does not log in to Fiction Lab or verify subscription ownership;
+- existing Scenarios created before this field is introduced should receive a conservative `Free` default during migration and remain user-editable.
+
+A separate Settings preference may define the default plan used when creating new Scenarios. That preference does not retroactively change existing Scenarios.
 
 Scenario-level organisational statuses:
 
@@ -861,7 +886,7 @@ Reader Mode should be especially comfortable for long Backstory content.
 
 Character count remains visible while editing.
 
-Hard Fiction Lab limits come from the centralized platform profile.
+Hard Fiction Lab limits come from the centralized platform profile for the Scenario's selected Fiction Lab Target Plan.
 
 Example:
 
@@ -1169,18 +1194,68 @@ Match in Content
 
 # 18A. Fiction Lab Platform Limits
 
-Fiction Lab platform limits must be stored in one centralized platform configuration profile rather than scattered or duplicated across UI code.
+Fiction Lab platform limits must be stored in one centralized platform configuration system rather than scattered or duplicated across UI code.
+
+The centralized configuration is **plan-aware**.
+
+Supported Fiction Lab Target Plans:
+
+- `Free`
+- `Plus`
+- `Ultra`
+
+Each plan has its own platform-limit profile. Validation and character-limit displays use the profile that matches the current Scenario's selected Fiction Lab Target Plan.
+
+Canonical behaviour:
+
+```text
+Scenario
+└── fictionLabPlan: Free | Plus | Ultra
+        ↓
+Central Platform Configuration
+        ↓
+Plan-specific limits
+        ↓
+Character counts / remaining count / validation
+```
 
 Rules:
 
-- current verified Fiction Lab interface values are the defaults;
+- current verified Fiction Lab interface/documentation values are the defaults for each plan;
+- exact plan-specific limits are maintained in one central configuration source;
+- UI components must not hardcode plan-specific numeric limits;
 - hard platform limits and internal operational recommendations are separate concepts;
-- hard limits represent values enforced by Fiction Lab;
+- hard limits represent values enforced by Fiction Lab for the selected plan;
 - operational targets represent Scenario Architect guidance and must never be presented as Fiction Lab hard limits;
 - if Fiction Lab changes a limit, the value should be updateable in one central configuration source;
-- validation throughout the application reads from this central profile.
+- validation throughout the application reads from the selected plan profile;
+- switching plan recalculates validation immediately;
+- switching plan never truncates or rewrites stored text;
+- if a field exceeds the newly selected plan limit, preserve the text and show an explicit over-limit state;
+- Fiction Lab remains the final authority for live platform validation.
+
+Example configuration shape:
+
+```text
+PlatformProfile
+- Free
+  - Scenario Name
+  - Scenario Description
+  - Backstory / World Details
+  - Greeting
+  - Custom Scenario Instructions
+  - Lore limits
+  - other verified limits
+
+- Plus
+  - same keys with Plus-specific values
+
+- Ultra
+  - same keys with Ultra-specific values
+```
 
 Example categories include:
+
 - Scenario Name limit;
 - Scenario Description limit;
 - Scenario Tags maximum;
@@ -1190,7 +1265,11 @@ Example categories include:
 - Lore field limits;
 - pin limits where applicable.
 
-The UI does not need to expose every platform limit as an unrestricted user-editable setting. The architectural requirement is centralized configurability and clean separation from operational guidance.
+Official reference for tier behaviour and current plan differences:
+
+`https://fictionlab.gitbook.io/fictionlab/site-information/fictionlab-tiers`
+
+The UI does not need to expose every platform limit as an unrestricted user-editable setting. The architectural requirement is centralized, plan-aware configurability and clean separation from operational guidance.
 
 ---
 
@@ -3843,6 +3922,7 @@ The database schema should model product concepts directly rather than duplicati
 - backstory
 - greeting
 - customInstructions
+- fictionLabPlan
 - notes
 - favorite
 - isTrashed
@@ -4005,9 +4085,16 @@ A card may have multiple historical verification records if useful, with the lat
 ## PlatformProfile
 Represents the centrally maintained Fiction Lab reference configuration:
 - id
+- plan
 - name
 - version
 - updatedAt
+
+`plan` is a controlled value:
+
+- FREE
+- PLUS
+- ULTRA
 
 ## PlatformLimit
 - id
@@ -4018,6 +4105,14 @@ Represents the centrally maintained Fiction Lab reference configuration:
 - sourceNote
 
 Hard platform limits remain separate from operational guidance.
+
+The same logical limit key may have different values in the Free, Plus and Ultra profiles.
+
+Scenario validation resolves limits through:
+
+`Scenario.fictionLabPlan → PlatformProfile.plan → PlatformLimit`
+
+A plan change never mutates Scenario text. It only changes the active validation/reference profile.
 
 ## AppSetting
 - key
@@ -4051,6 +4146,7 @@ The application and database must enforce:
 - Character Traits apply only to Character cards;
 - Character Traits use only the official controlled list and max 10;
 - Scenario Tags use only the official controlled list and max 5;
+- Scenario `fictionLabPlan` must be one of FREE / PLUS / ULTRA;
 - Weight uses only the five supported controlled values;
 - Internal Category uses only the fixed controlled list;
 - Pinned and Favourite are boolean values;
@@ -4155,7 +4251,8 @@ Search at minimum:
 
 - Scenario Name;
 - Scenario Description;
-- Scenario Tags & Genres.
+- Scenario Tags & Genres;
+- Fiction Lab Target Plan.
 
 Full Lore content search belongs inside the Scenario Workspace rather than the Library.
 
@@ -4707,17 +4804,20 @@ Do not treat a single specialized font as a substitute for broader readability d
 
 ## Fiction Lab Reference
 
-The application uses a centralized Fiction Lab platform profile for verified field structures, labels and hard limits.
+The application uses centralized Fiction Lab platform profiles for verified field structures, labels and hard limits.
 
-Normal users should not need to edit these values frequently.
+Normal users should not need to edit numeric platform values frequently.
 
-Settings may show:
+Settings should provide:
 
-- current profile name;
+- **Default Fiction Lab Plan for new Scenarios:** Free / Plus / Ultra;
+- current platform-profile version;
 - last updated date;
 - `View Platform Limits`.
 
-Advanced editing may be available behind a clearly labelled secondary action if needed.
+The default plan is only a creation default. Every Scenario stores its own Fiction Lab Target Plan and changing the Settings default must not silently alter existing Scenarios.
+
+Advanced editing of verified platform values may be available behind a clearly labelled secondary action if needed.
 
 Hard platform limits must remain visually and conceptually separate from internal operational guidance.
 
@@ -4842,14 +4942,14 @@ The implementation-ready v1 MVP includes:
 
 1. Windows local-first desktop application.
 2. Scenario Library with Grid/List, search, sorting, Favourite and Scenario Trash.
-3. Scenario creation/editing and manual Scenario Status.
+3. Scenario creation/editing, per-Scenario Fiction Lab Target Plan and manual Scenario Status.
 4. Main Details, Story and Scenario Overview.
 5. Official Fiction Lab Lore Types.
 6. Fixed Companion Internal Categories.
 7. Official controlled Weight, Trait and Scenario Tag vocabularies.
 8. Lore Card creation/editing/duplication/Trash/Restore.
 9. Separate Text Canon and Visual Canon lifecycle.
-10. live local character counting plus optional manually recorded Fiction Lab count.
+10. live local character counting with plan-aware Fiction Lab limits plus optional manually recorded Fiction Lab count.
 11. Lore search, filters, sorting and persistent manual display order.
 12. directional Connections with Incoming/Outgoing views and unordered-pair reverse prevention.
 13. Connection Ledger with Active / Deferred / Affected / Inactive states.
@@ -6335,9 +6435,10 @@ The MVP is functionally acceptable when the user can, on Windows:
 - create, rename, Favourite, archive, Trash, restore and permanently delete Scenarios with the defined safeguards;
 - reopen the application without losing successfully saved data;
 - use Scenario Main Details and all three Story fields;
+- select Free / Plus / Ultra as the Scenario's Fiction Lab Target Plan and see applicable limits update without content loss;
 - create/edit/duplicate/Trash/restore every supported Lore Type;
 - use the official controlled Tags, Traits and Weight values;
-- see accurate local character counts and manually store Fiction Lab verification counts;
+- see accurate local character counts against the selected plan profile and manually store Fiction Lab verification counts;
 - distinguish Text Canon and Visual Canon states;
 - edit a CANON CLOSED official field and see it reopen to DRAFT;
 - create `A → B` and be prevented from creating either duplicate `A → B` or reverse `B → A`;
@@ -6829,7 +6930,8 @@ Resolved:
 - **Lore editing:** focused editor with Content / Visual / Connections / Details plus separate Edit and Reader modes.
 - **Connections UI:** readable directional list/table is primary in v1; graph is secondary/later.
 - **Workspace search:** global search with grouped results.
-- **Fiction Lab limits:** centralized configurable platform profile; verified current values as defaults; hard limits kept separate from operational targets.
+- **Fiction Lab limits:** centralized plan-aware configurable platform profiles; verified current values as defaults; hard limits kept separate from operational targets.
+- **Fiction Lab Target Plan:** every Scenario stores Free / Plus / Ultra and uses that plan to resolve applicable platform limits; plan changes never truncate content.
 - **Visual prompts in exports:** included by default in Scenario Architect Review and Full Documentation, together with final VISUAL CANON images.
 - **Image storage:** managed scenario copies under `Scenario Name/images/`.
 - **Scenario folder structure:** managed `images/`, `exports/pdf/`, `exports/markdown/`, `backups/`, plus structured scenario data.
@@ -6866,6 +6968,7 @@ Finalized implementation direction:
 - **UI:** Modern Editorial Workspace, accessibility-first.
 - **Scenario structure:** dedicated top-level Main Details / Story fields plus Lore Cards.
 - **Controlled platform values:** official Types, Traits, Weights, Tags & Genres.
+- **Fiction Lab Target Plan:** Free / Plus / Ultra stored per Scenario, with centralized plan-specific platform limits.
 - **Internal Categories:** fixed list, no custom categories in v1.
 - **Visual workflow:** external generation only; Companion stores prompt lineage and managed final images.
 - **Connections:** one pair / one direction / one record.
@@ -6925,20 +7028,22 @@ The planning criteria are now satisfied:
 
 **Status: COMPLETE.**
 
-Implementation may begin from this v3.0 Implementation-Ready baseline.
+Implementation may continue from this v3.1 Implementation-Ready baseline.
 
 ---
 # 59. Current Project Position
 
 **Current phase:** Implementation-ready.
 
-**PRD baseline:** v3.0 IMPLEMENTATION-READY.
+**PRD baseline:** v3.1 IMPLEMENTATION-READY.
 
 **Code status:** Implementation has not started.
 
 **Major product decisions:** Resolved.
 
 **Implementation-blocking PRD decisions:** None.
+
+**Latest product requirement added in v3.1:** per-Scenario Fiction Lab Target Plan (Free / Plus / Ultra) with plan-aware centralized platform limits.
 
 **Next project action:** freeze migration `001`, the v1 backup JSON schema and `ExportDocumentModel`, then initialize the Tauri + React + TypeScript codebase according to Section 57.
 
