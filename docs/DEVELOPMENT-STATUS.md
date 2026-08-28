@@ -133,7 +133,9 @@ The Story Workspace now:
 - displays live character counts for all three Story fields;
 - persists Story content directly to SQLite.
 
-## Fiction Lab Target Plan decision
+---
+
+## Fiction Lab Target Plan — implemented
 
 PRD v3.1 introduces a per-Scenario Fiction Lab Target Plan.
 
@@ -143,16 +145,71 @@ Supported values:
 - Plus
 - Ultra
 
-The selected plan will determine which centralized Fiction Lab platform-limit profile is used for character-limit display and validation.
+The selected plan is now persisted per Scenario and determines the Fiction Lab Story limits used by the application.
 
-Rules:
+Implemented behaviour:
 
-- the plan is stored per Scenario;
-- changing plan recalculates limits;
-- changing plan must never truncate or rewrite stored Scenario content;
-- Settings may later provide a default plan for newly created Scenarios;
-- existing Scenarios should default conservatively to Free when the database field is introduced.
+- existing Scenarios default conservatively to Free through migration;
+- the selected plan persists in SQLite;
+- changing plan recalculates Story limits immediately;
+- changing plan never truncates, rewrites or deletes existing Scenario content;
+- switching from a less restrictive plan to a more restrictive plan may leave existing content over-limit;
+- over-limit content remains visible and preserved;
+- future saves above the currently selected plan limit are rejected by the backend;
+- reducing content back within the active limit allows persistence again.
+
+## Plan-aware Story limits — implemented and tested
+
+Verified Story limits currently used:
+
+### Free
+
+- Backstory / World Details: 3000 characters
+- Greeting: 2000 characters
+- Custom Scenario Instructions: 3000 characters
+
+### Plus
+
+- Backstory / World Details: 10000 characters
+- Greeting: 4000 characters
+- Custom Scenario Instructions: 6000 characters
+
+### Ultra
+
+- Backstory / World Details: 10000 characters
+- Greeting: 4000 characters
+- Custom Scenario Instructions: 6000 characters
+
+Implementation now includes:
+
+- centralized Fiction Lab plan profiles;
+- SQLite platform profiles and limits;
+- plan-aware Story character counters;
+- Unicode character counting aligned between frontend and backend;
+- visual over-limit state;
+- backend enforcement before SQLite updates;
+- specific backend validation messages displayed in the Story UI.
+
+Manual testing confirmed:
+
+- Free rejects Story saves above its limits;
+- Plus accepts Story content above Free limits when still within Plus limits;
+- switching Plus → Free preserves existing over-limit content;
+- no crash or data loss occurs when switching to a more restrictive plan;
+- over-limit content remains visible and clearly marked;
+- the last valid persisted value is preserved when a new save is rejected.
+
+## Current Workspace state
+
+- Overview — functional and connected to SQLite metrics.
+- Story — functional, persisted, autosaving and plan-aware.
+- Lore — placeholder.
+- Visuals — placeholder.
+- Connections — placeholder.
+- Exports — placeholder.
+
+Do not rebuild the Scenario Library, Scenario creation flow, Workspace routing, Scenario Overview, basic Story persistence or Fiction Lab Target Plan support unless a later change specifically requires it.
 
 ## Next development task
 
-Add Fiction Lab Target Plan to Scenario persistence and introduce the centralized plan-aware platform-limit configuration before enforcing Story character limits.
+Review the Story Workspace for any remaining small UX/data-integrity cleanup, then begin the next planned major Workspace section from the PRD.
