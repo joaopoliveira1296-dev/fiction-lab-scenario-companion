@@ -127,20 +127,6 @@ export function ScenarioWorkspace() {
   const [isSavingCustomInstructions, setIsSavingCustomInstructions] =
     useState(false);
 
-  const [greetingSaveStatus, setGreetingSaveStatus] = useState<
-    "idle" | "saved" | "error"
-  >("idle");
-
-  const [greetingSaveError, setGreetingSaveError] = useState<string | null>(
-    null,
-  );
-
-  const [customInstructionsSaveStatus, setCustomInstructionsSaveStatus] =
-    useState<"idle" | "saved" | "error">("idle");
-
-  const [customInstructionsSaveError, setCustomInstructionsSaveError] =
-    useState<string | null>(null);
-
   const [backstorySaveStatus, setBackstorySaveStatus] = useState<
     "idle" | "saved" | "error"
   >("idle");
@@ -148,6 +134,17 @@ export function ScenarioWorkspace() {
     null,
   );
 
+  const [greetingSaveStatus, setGreetingSaveStatus] = useState<
+    "idle" | "saved" | "error"
+  >("idle");
+  const [greetingSaveError, setGreetingSaveError] = useState<string | null>(
+    null,
+  );
+
+  const [customInstructionsSaveStatus, setCustomInstructionsSaveStatus] =
+    useState<"idle" | "saved" | "error">("idle");
+  const [customInstructionsSaveError, setCustomInstructionsSaveError] =
+    useState<string | null>(null);
   const activeSection: WorkspaceSection = WORKSPACE_SECTIONS.some(
     (item) => item.id === section,
   )
